@@ -1,6 +1,5 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 import { loginUserAPI, addUserAPI, User, UserInfo } from "../quiz-api/quiz-api";
-
 
 type QuizProviderProps = {
     children: React.ReactNode
@@ -9,6 +8,7 @@ type QuizProviderProps = {
 export type QuizContextType = {
     user: User,
     loginUser: (user: UserInfo) => void,
+    logoutUser: () => void,
     addUser: (user: UserInfo) => void,
 }
 
@@ -21,6 +21,7 @@ const INIT_USER = {
 const QuizContext = createContext<QuizContextType>({
     user: INIT_USER,
     loginUser: () => {},
+    logoutUser: () => {},
     addUser: () => {},
 });
 
@@ -28,9 +29,17 @@ export const QuizProvider = ({children}: QuizProviderProps) => {
 
     const [user, setUser] = useState<User>(INIT_USER);
 
+    useEffect(() => {
+        const loggedInUser = localStorage.getItem("user");
+        if(loggedInUser) {
+            setUser(JSON.parse(loggedInUser));
+        }
+    }, [])
+
     const addUser = async (user: UserInfo) => {
         try {
             const result = await addUserAPI(user);
+            localStorage.setItem("user", JSON.stringify(result));
             setUser(result);
         }
         catch(error)
@@ -41,10 +50,10 @@ export const QuizProvider = ({children}: QuizProviderProps) => {
 
     const loginUser = async (user: UserInfo) => {
         //let result : User[] = [];
-        console.log(user);
         try {
             const result = await loginUserAPI(user);
-           setUser(result);
+            localStorage.setItem("user", JSON.stringify(result));
+            setUser(result);
         }
         catch(error)
         {
@@ -53,11 +62,17 @@ export const QuizProvider = ({children}: QuizProviderProps) => {
 
         //return result;
     }
+
+    const logoutUser = () => {
+        setUser(INIT_USER);
+        localStorage.removeItem("user");
+    }
     
     return(
         <QuizContext.Provider value={{
             user,
             loginUser,
+            logoutUser,
             addUser,
         }}>
             {children}

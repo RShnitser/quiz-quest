@@ -21,13 +21,13 @@ const UserLogin = () => {
     const location = useLocation();
     const [user, setUser] = useState(INIT_USER);
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) : void => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
       
         try {
             if(user.userName.length && user.password.length) {
                 const {from} = location.state || {from: { pathname: "/"}}  
-                loginUser(user);
+                await loginUser(user);
                 navigate(from, { replace: true });
             }
         }
@@ -42,16 +42,32 @@ const UserLogin = () => {
     }
 
     return(
-        <>
-            <form onSubmit={handleSubmit}>
-                <input type="text" name="userName" onChange={handleChange}></input>
-                <input type="text" name="password" onChange={handleChange}></input>
-                <input type="submit" value="Sign In"></input>
+        <div className="center-display">
+            <h3 className="title">Sign In</h3>
+            <form className="form" onSubmit={handleSubmit}>
+                <input 
+                    className="form-input" 
+                    type="text" 
+                    name="userName"
+                    value={user.userName}
+                    placeholder="enter user name" 
+                    onChange={handleChange}
+                />
+                <input 
+                    className="form-input" 
+                    type="password" 
+                    name="password" 
+                    value={user.password}
+                    placeholder="enter password"
+                    onChange={handleChange}
+                />
+                <input className="submit-btn" type="submit" value="Sign In"/>
             </form>
-            <div>
+            <div className="link">
+                Don't have an account?&nbsp;
                 <Link to="/register">Create Account</Link>
             </div>
-        </>
+        </div>
     );
 }
 

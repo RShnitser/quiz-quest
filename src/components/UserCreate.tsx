@@ -21,7 +21,7 @@ const UserCreate = () => {
 
         try {
             if(user.userName.length && user.password.length) {
-                const result = addUser(user);
+                addUser(user);
                 navigate("/");
             }
         }
@@ -35,16 +35,32 @@ const UserCreate = () => {
     }
 
     return(
-        <>
-            <form onSubmit={handleSubmit}>
-                <input type="text" name="userName" onChange={handleChange}></input>
-                <input type="text" name="password" onChange={handleChange}></input>
-                <input type="submit" value="Create Account"/>
+        <div className="center-display">
+            <h3 className="title">Create Account</h3>
+            <form className="form" onSubmit={handleSubmit}>
+            <input 
+                    className="form-input" 
+                    type="text" 
+                    name="userName"
+                    value={user.userName}
+                    placeholder="enter user name" 
+                    onChange={handleChange}
+                />
+                <input 
+                    className="form-input" 
+                    type="password" 
+                    name="password"
+                    value={user.password}
+                    placeholder="enter password"
+                    onChange={handleChange}
+                />
+                <input className="submit-btn" type="submit" value="Create Account"/>
             </form>
-            <div>
+            <div className="link">
+                Already have an account?&nbsp;
                 <Link to="/login">Sign In</Link>
             </div>
-        </>
+        </div>
     );
 }
 
