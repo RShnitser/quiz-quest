@@ -1,8 +1,8 @@
-const MainMenu = () => {
+const Quest = () => {
 
     return(
         <div>Take Quiz</div>
     );
 }
 
-export default MainMenu;
+export default Quest;

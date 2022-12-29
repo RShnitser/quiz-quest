@@ -5,20 +5,20 @@ const MainMenu = () => {
     const navigate = useNavigate();
 
     return(
-        <div>
-            <div>Main Menu</div>
-            <ul>
+        <div className="menu-display">
+            <div className="title">Main Menu</div>
+            <ul className="menu-list">
                 <li>
-                    <button type="button" onClick={() => navigate("/takequiz")}>Take Quiz</button>
+                    <button className="submit-btn" type="button" onClick={() => navigate("/quest")}>Take Quiz</button>
                 </li>
                 <li>
-                    <button type="button">Quiz Settings</button>
+                    <button type="button"  onClick={() => navigate("/settings")}>Quiz Settings</button>
                 </li>
                 <li>
-                    <button type="button">Add Question</button>
+                    <button type="button"  onClick={() => navigate("/add-quest")}>Add Question</button>
                 </li>
                 <li>
-                    <button type="button">View History</button>
+                    <button type="button"  onClick={() => navigate("/history")}>View History</button>
                 </li>
             </ul>
         </div>

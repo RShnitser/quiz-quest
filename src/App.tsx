@@ -1,5 +1,5 @@
 import {BrowserRouter, Routes, Route, Navigate, Outlet, useLocation} from "react-router-dom"
-import QuizApp from './components/QuizApp'
+import QuizApp from './components/QuizApp/QuizApp'
 import { QuizProvider } from './providers/QuizProvider'
 import UserLogin from "./components/UserLogin"
 import UserCreate from "./components/UserCreate"
