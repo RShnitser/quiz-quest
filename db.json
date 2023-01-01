@@ -1,18 +1,11 @@
 {
   "users": [
-   {
-     "id": 1,
-     "name": "test1"
-   },
-   {
-    "id": 2,
-    "name": "test2"
-  }
+    {
+      "userName": "test",
+      "password": "12345",
+      "id": 1
+    }
   ],
-  "questions": [
-  
-  ],
-  "history": [
-
-  ]
+  "questions": [],
+  "history": []
 }
