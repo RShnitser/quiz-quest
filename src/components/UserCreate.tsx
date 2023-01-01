@@ -54,7 +54,7 @@ const UserCreate = () => {
                     placeholder="enter password"
                     onChange={handleChange}
                 />
-                <input className="submit-btn" type="submit" value="Create Account"/>
+                <input className="form-btn" type="submit" value="Create Account"/>
             </form>
             <div className="link">
                 Already have an account?&nbsp;

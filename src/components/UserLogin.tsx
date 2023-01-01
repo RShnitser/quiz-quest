@@ -61,7 +61,7 @@ const UserLogin = () => {
                     placeholder="enter password"
                     onChange={handleChange}
                 />
-                <input className="submit-btn" type="submit" value="Sign In"/>
+                <input className="form-btn" type="submit" value="Sign In"/>
             </form>
             <div className="link">
                 Don't have an account?&nbsp;

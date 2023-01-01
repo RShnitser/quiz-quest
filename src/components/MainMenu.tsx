@@ -7,18 +7,18 @@ const MainMenu = () => {
     return(
         <div className="menu-display">
             <div className="title">Main Menu</div>
-            <ul className="menu-list">
+            <ul className="form menu-list">
                 <li>
-                    <button className="submit-btn" type="button" onClick={() => navigate("/quest")}>Take Quiz</button>
+                    <button className="form-btn" type="button" onClick={() => navigate("/quest")}>Take Quiz</button>
                 </li>
                 <li>
-                    <button type="button"  onClick={() => navigate("/settings")}>Quiz Settings</button>
+                    <button className="form-btn" type="button"  onClick={() => navigate("/settings")}>Quiz Settings</button>
                 </li>
                 <li>
-                    <button type="button"  onClick={() => navigate("/add-quest")}>Add Question</button>
+                    <button className="form-btn" type="button"  onClick={() => navigate("/add-quest")}>Add Question</button>
                 </li>
                 <li>
-                    <button type="button"  onClick={() => navigate("/history")}>View History</button>
+                    <button className="form-btn" type="button"  onClick={() => navigate("/history")}>View History</button>
                 </li>
             </ul>
         </div>
