@@ -3,6 +3,7 @@ import {useNavigate, useLocation, Link} from "react-router-dom";
 import useQuiz from "../providers/QuizProvider";
 import { QuizContextType } from "../providers/QuizProvider";
 import { UserInfo } from "../quiz-api/quiz-api";
+import InputField from "./InputField";
 
 // type LoginState = {
 //     userName: string,
@@ -41,11 +42,34 @@ const UserLogin = () => {
         setUser({...user, [name]: value});
     }
 
+    const formData = [
+        {
+            type: "text", 
+            label: "",
+            name: "userName",
+            value: user.userName,
+            placeHolder: "Enter User Name",
+        },
+        {
+            type: "password", 
+            label: "",
+            name: "password",
+            value: user.password,
+            placeHolder: "Enter Password",
+        }
+    ]
+
     return(
         <div className="center-display">
             <h3 className="title">Sign In</h3>
             <form className="form" onSubmit={handleSubmit}>
-                <input 
+                {formData.map((data) => (
+                    <InputField 
+                        {...data}
+                        onChange={handleChange}
+                    />
+                ))}
+                {/* <input 
                     className="form-input" 
                     type="text" 
                     name="userName"
@@ -60,7 +84,7 @@ const UserLogin = () => {
                     value={user.password}
                     placeholder="enter password"
                     onChange={handleChange}
-                />
+                /> */}
                 <input className="form-btn" type="submit" value="Sign In"/>
             </form>
             <div className="link">

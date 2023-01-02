@@ -1,3 +1,5 @@
+import "./InputField.css";
+
 type InputFieldProps = {
     label: string;
     type: string;
@@ -8,16 +10,25 @@ type InputFieldProps = {
     value?: string;
 }
 
-const InputField = ({label, ...props}: InputFieldProps) => {
+const InputField = ({label, type, ...props}: InputFieldProps) => {
     
+    const errorM = "";
     return (
         <>
-            <label htmlFor={label}>{label}</label>
-            <input 
-                id={label}
-                className="form-input"
-                {...props}
-            />
+            <div className={
+                type === "text" || type === "password" 
+                ? "input-vertical" 
+                : "input-horizontal"}
+            >
+                <label className="input-label" htmlFor={label}>{label}</label>
+                <input 
+                    id={label}
+                    type={type}
+                    className={errorM.length ? "input-field input-error-bg" : "input-field"}
+                    {...props}
+                />
+            </div>
+            <div className="input-error">{errorM}</div>
         </>
     );
 }

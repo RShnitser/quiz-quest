@@ -23,11 +23,18 @@
     padding: 30px 20px;
 }
 
-.form-input {
-    margin-bottom: 15px;
-    padding: 15px 10px;
-    border-radius: 5px;
+.form-option {
+    /* background-color: var(--light-gray); */
+    /* background-color: white; */
+    /* border: none; */
     border: 1px solid var(--black);
+    outline: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    margin: 10px 0;
+    font-size: 1.1rem;
+    /* font-weight: bold; */
+    /* color: var(--dark-gray); */
 }
 
 .form-btn {
@@ -41,6 +48,23 @@
     font-size: 1.1rem;
     color: white;
 }
+
+.form-grid
+{
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    margin: 10px 20px;
+    /* gap: 0 100px; */
+}
+
+.form-grid > div {
+    max-width: 150px;
+    justify-content: space-between;
+}
+
+/* .form-grid .input-error {
+    grid-column: 1 /span 2;
+} */
 
 .link {
     padding: 20px;

@@ -320,8 +320,11 @@ const QuestCreate = () => {
                         setQuestionInfo({...questionInfo, question: value});
                     }}
                 />
+                <label className="input-label" htmlFor="question-type">Question Type:</label>
                 <select 
+                    id="question-type"
                     name="type"
+                    className="form-option"
                     value={questionInfo.type}
                     onChange={({target: {value}}: React.ChangeEvent<HTMLSelectElement>) => {
                         //setType(value as QuestionType);
@@ -370,37 +373,40 @@ const QuestCreate = () => {
                     ))}
                 </select>
                 {inputs}
-                { Array.from(questionInfo.tags.keys()).map((tag) => (
-                    <React.Fragment key={tag}>
-                        {/* <label htmlFor={tag}>{`${tag}: `}</label>
-                        <input 
-                            type="checkbox" 
-                            checked={questionInfo.tags.get(tag)}
-                            onChange={() => {
-                               
-                                setQuestionInfo({
-                                    ...questionInfo, 
-                                    tags: new Map<string, boolean>(questionInfo.tags.set(tag, !questionInfo.tags.get(tag) || false))
-                                });
+                <label className="input-label" >Tags:</label>
+                <div className="form-grid">
+                    { Array.from(questionInfo.tags.keys()).map((tag) => (
+                        <React.Fragment key={tag}>
+                            {/* <label htmlFor={tag}>{`${tag}: `}</label>
+                            <input 
+                                type="checkbox" 
+                                checked={questionInfo.tags.get(tag)}
+                                onChange={() => {
                                 
-                            }}
-                        /> */}
-                        <InputField 
-                            label={tag}
-                            type="checkbox"
-                            checked={questionInfo.tags.get(tag)}
-                            onChange={() => {
-                               
-                                setQuestionInfo({
-                                    ...questionInfo, 
-                                    tags: new Map<string, boolean>(questionInfo.tags.set(tag, !questionInfo.tags.get(tag) || false))
-                                });
+                                    setQuestionInfo({
+                                        ...questionInfo, 
+                                        tags: new Map<string, boolean>(questionInfo.tags.set(tag, !questionInfo.tags.get(tag) || false))
+                                    });
+                                    
+                                }}
+                            /> */}
+                            <InputField 
+                                label={tag}
+                                type="checkbox"
+                                checked={questionInfo.tags.get(tag)}
+                                onChange={() => {
                                 
-                            }}
+                                    setQuestionInfo({
+                                        ...questionInfo, 
+                                        tags: new Map<string, boolean>(questionInfo.tags.set(tag, !questionInfo.tags.get(tag) || false))
+                                    });
+                                    
+                                }}
 
-                        />
-                    </React.Fragment>
-                ))}
+                            />
+                        </React.Fragment>
+                    ))}
+                </div>
                 <input className="form-btn" type="submit" value="Add Question"/>
             </form>
         </div>

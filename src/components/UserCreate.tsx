@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import useQuiz from "../providers/QuizProvider";
 import { QuizContextType } from "../providers/QuizProvider";
 import { UserInfo } from "../quiz-api/quiz-api";
+import InputField from "./InputField";
 
 const INIT_USER : UserInfo = {
     userName: "",
@@ -34,11 +35,34 @@ const UserCreate = () => {
         setUser({...user, [name]: value});
     }
 
+    const formData = [
+        {
+            type: "text", 
+            label: "",
+            name: "userName",
+            value: user.userName,
+            placeHolder: "Enter User Name",
+        },
+        {
+            type: "password", 
+            label: "",
+            name: "password",
+            value: user.password,
+            placeHolder: "Enter Password",
+        }
+    ]
+
     return(
         <div className="center-display">
             <h3 className="title">Create Account</h3>
             <form className="form" onSubmit={handleSubmit}>
-            <input 
+                {formData.map((data) => (
+                    <InputField 
+                        {...data}
+                        onChange={handleChange}
+                    />
+                ))}
+                {/* <input 
                     className="form-input" 
                     type="text" 
                     name="userName"
@@ -53,8 +77,8 @@ const UserCreate = () => {
                     value={user.password}
                     placeholder="enter password"
                     onChange={handleChange}
-                />
-                <input className="form-btn" type="submit" value="Create Account"/>
+                />*/}
+                <input className="form-btn" type="submit" value="Create Account"/> 
             </form>
             <div className="link">
                 Already have an account?&nbsp;
