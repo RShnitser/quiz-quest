@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import { loginUserAPI, addUserAPI, User, UserInfo } from "../quiz-api/quiz-api";
+import { loginUserAPI, addUserAPI, User, UserInfo, addQuestionAPI } from "../quiz-api/quiz-api";
+import { QuestionInfo} from "../quiz-api/quiz-api";
 
 type QuizProviderProps = {
     children: React.ReactNode
@@ -10,6 +11,7 @@ export type QuizContextType = {
     loginUser: (user: UserInfo) => void,
     logoutUser: () => void,
     addUser: (user: UserInfo) => void,
+    addQuestion: (question: QuestionInfo) => void,
 }
 
 const INIT_USER = {
@@ -23,6 +25,7 @@ const QuizContext = createContext<QuizContextType>({
     loginUser: () => {},
     logoutUser: () => {},
     addUser: () => {},
+    addQuestion: () => {},
 });
 
 export const QuizProvider = ({children}: QuizProviderProps) => {
@@ -67,6 +70,16 @@ export const QuizProvider = ({children}: QuizProviderProps) => {
         setUser(INIT_USER);
         localStorage.removeItem("user");
     }
+
+    const addQuestion = async (question: QuestionInfo) => {
+        try {
+            const result = await addQuestionAPI(question);
+            return result;
+        }
+        catch(error) {
+            console.error(error);
+        }
+    }
     
     return(
         <QuizContext.Provider value={{
@@ -74,6 +87,7 @@ export const QuizProvider = ({children}: QuizProviderProps) => {
             loginUser,
             logoutUser,
             addUser,
+            addQuestion,
         }}>
             {children}
         </QuizContext.Provider>
