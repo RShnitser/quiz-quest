@@ -8,6 +8,10 @@ import Settings from "../Settings";
 import QuestHistory from "../QuestHistory";
 import "./QuizApp.css";
 
+export type InputError = {
+    [key: string]: string
+}
+
 const QuizApp = () => {
 
     const {logoutUser} : QuizContextType  = useQuiz();

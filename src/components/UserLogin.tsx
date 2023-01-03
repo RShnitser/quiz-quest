@@ -4,11 +4,7 @@ import useQuiz from "../providers/QuizProvider";
 import { QuizContextType } from "../providers/QuizProvider";
 import { UserInfo } from "../quiz-api/quiz-api";
 import InputField from "./InputField";
-
-// type LoginState = {
-//     userName: string,
-//     password: string
-// }
+import { InputError } from "./QuizApp/QuizApp";
 
 const INIT_USER : UserInfo = {
     userName: "",
@@ -20,17 +16,31 @@ const UserLogin = () => {
     const {loginUser} : QuizContextType  = useQuiz();
     const navigate = useNavigate();
     const location = useLocation();
+    
     const [user, setUser] = useState(INIT_USER);
+    const [error, setError] = useState<InputError>({});
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
       
         try {
-            if(user.userName.length && user.password.length) {
+
+            let isError = false;
+            if(!user.userName.length) {
+                setError({...error, ["userName"]: "Enter Name"});
+                isError = true;
+            } 
+            if(!user.password.length) {
+                setError({...error, ["password"]: "Enter Password"});
+                isError = true;
+            }
+
+            if(!isError){
                 const {from} = location.state || {from: { pathname: "/"}}  
                 await loginUser(user);
                 navigate(from, { replace: true });
             }
+           
         }
         catch(e){
             console.error(e);
@@ -66,6 +76,7 @@ const UserLogin = () => {
                 {formData.map((data) => (
                     <InputField 
                         {...data}
+                        error={error[data.name] || ""}
                         onChange={handleChange}
                     />
                 ))}

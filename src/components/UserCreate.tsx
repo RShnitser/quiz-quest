@@ -4,24 +4,39 @@ import useQuiz from "../providers/QuizProvider";
 import { QuizContextType } from "../providers/QuizProvider";
 import { UserInfo } from "../quiz-api/quiz-api";
 import InputField from "./InputField";
+import { InputError } from "./QuizApp/QuizApp";
 
 const INIT_USER : UserInfo = {
     userName: "",
-    password: ""
+    password: "",
 }
 
-
+// interface InputError {
+//     [key: string]: string
+// }
 const UserCreate = () => {
 
     const {addUser} : QuizContextType  = useQuiz();
     const navigate = useNavigate();
+    
     const [user, setUser] = useState(INIT_USER);
+    const [error, setError] = useState<InputError>({});
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
         e.preventDefault();
 
         try {
-            if(user.userName.length && user.password.length) {
+            let isError = false;
+            if(!user.userName.length) {
+                setError({...error, ["userName"]: "Enter Name"});
+                isError = true;
+            } 
+            if(!user.password.length) {
+                setError({...error, ["password"]: "Enter Password"});
+                isError = true;
+            }
+
+            if(!isError){
                 addUser(user);
                 navigate("/");
             }
@@ -59,6 +74,7 @@ const UserCreate = () => {
                 {formData.map((data) => (
                     <InputField 
                         {...data}
+                        error={error[data.name] || ""}
                         onChange={handleChange}
                     />
                 ))}

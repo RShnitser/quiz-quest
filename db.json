@@ -7,7 +7,13 @@
     }
   ],
   "questions": [
-    
+    {
+      "question": "",
+      "type": "Fill in the blank",
+      "answer": "",
+      "tags": [],
+      "id": 1
+    }
   ],
   "history": []
 }

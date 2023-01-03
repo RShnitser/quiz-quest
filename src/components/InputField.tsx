@@ -8,11 +8,12 @@ type InputFieldProps = {
     name?: string;
     checked?: boolean;
     value?: string;
+    error: string;
 }
 
-const InputField = ({label, type, ...props}: InputFieldProps) => {
+const InputField = ({label, type, error, ...props}: InputFieldProps) => {
     
-    const errorM = "";
+    //const errorM = "";
     return (
         <>
             <div className={
@@ -24,11 +25,11 @@ const InputField = ({label, type, ...props}: InputFieldProps) => {
                 <input 
                     id={label}
                     type={type}
-                    className={errorM.length ? "input-field input-error-bg" : "input-field"}
+                    className={error.length ? "input-field input-error-bg" : "input-field"}
                     {...props}
                 />
             </div>
-            <div className="input-error">{errorM}</div>
+            <div className="input-error">{error}</div>
         </>
     );
 }

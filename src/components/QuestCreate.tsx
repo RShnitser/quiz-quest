@@ -4,6 +4,7 @@ import useQuiz from "../providers/QuizProvider";
 import { QuizContextType } from "../providers/QuizProvider";
 import { QuestionType, QuestionInfo} from "../quiz-api/quiz-api";
 import InputField from "./InputField";
+import { InputError } from "./QuizApp/QuizApp";
 
 
 const INIT_QUESTION: QuestionInfo = {
@@ -24,12 +25,16 @@ const QuestCreate = () => {
     const {addQuestion} : QuizContextType  = useQuiz();
     const navigate = useNavigate();
 
-    //const [question, setQuestion] = useState<string>("");
     const [questionInfo, setQuestionInfo] = useState<QuestionInfo>(INIT_QUESTION);
-    //const [tags, setTags] = useState<Tags>(INIT_TAGS);
+    const [error, setError] = useState<InputError>({});
 
     const isQuestionValid = (): boolean => {
-        return true;
+        let result = true;
+
+        if(!questionInfo.question.length) {
+            setError({...error, ["question"]: "Enter a question"})
+        }
+        return(result);
     }
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
@@ -73,7 +78,8 @@ const QuestCreate = () => {
                  <InputField
                     label="Answer:"
                     type="text" 
-                    name="answer" 
+                    name="answer"
+                    error={error["answer"] || ""}
                     value={questionInfo.answer} 
                     onChange={({target: {value}}: React.ChangeEvent<HTMLInputElement>) => {
                         setQuestionInfo({...questionInfo, answer: value});
@@ -114,6 +120,7 @@ const QuestCreate = () => {
                     <InputField
                         key={data.label}
                         {...data}
+                        error={error[data.name] || ""}
                         onChange={({target: {name, value}}: React.ChangeEvent<HTMLInputElement>) => {
                             setQuestionInfo({...questionInfo, [name]: value});
                         }}
@@ -197,6 +204,7 @@ const QuestCreate = () => {
                             label={data.label + ": "}
                             type="text"
                             name={data.name}
+                            error={data.name || ""}
                             value={data.value}
                             onChange={({target: {name, value}}: React.ChangeEvent<HTMLInputElement>) => {
                                 setQuestionInfo({...questionInfo, [name]: value});
@@ -206,6 +214,7 @@ const QuestCreate = () => {
                             label={data.label + " Apples: "}
                             type="checkbox"
                             name={data.name + "Applies"}
+                            error=""
                             //value={data.value}
                             onChange={({target: {name}}: React.ChangeEvent<HTMLInputElement>) => {
                                 setQuestionInfo({...questionInfo, [name]: !data.applies});
@@ -315,7 +324,8 @@ const QuestCreate = () => {
                 <InputField 
                     label="Question: " 
                     name="question" 
-                    type="text" 
+                    type="text"
+                    error={error["question"] || ""}
                     onChange={({target: {value}}: React.ChangeEvent<HTMLInputElement>) => {
                         setQuestionInfo({...questionInfo, question: value});
                     }}
@@ -394,6 +404,7 @@ const QuestCreate = () => {
                                 label={tag}
                                 type="checkbox"
                                 checked={questionInfo.tags.get(tag)}
+                                error=""
                                 onChange={() => {
                                 
                                     setQuestionInfo({
