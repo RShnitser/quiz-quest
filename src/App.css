@@ -81,6 +81,8 @@
 }
   
 .menu-list {
+    margin: 0;
+    padding: 20px;
     list-style-type: none;
 }
 

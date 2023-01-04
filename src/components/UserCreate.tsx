@@ -21,24 +21,40 @@ const UserCreate = () => {
     
     const [user, setUser] = useState(INIT_USER);
     const [error, setError] = useState<InputError>({});
+    const [pageError, setPageError] = useState<string>("");
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+
+        setPageError("");
+        setError({});
+
+        const newError: InputError = {};
 
         try {
             let isError = false;
             if(!user.userName.length) {
-                setError({...error, ["userName"]: "Enter Name"});
+                //setError({...error, ["userName"]: "Enter Name"});
+                newError["userName"] = "Enter Name";
                 isError = true;
             } 
             if(!user.password.length) {
-                setError({...error, ["password"]: "Enter Password"});
+                //setError({...error, ["password"]: "Enter Password"});
+                newError["password"] = "Enter Password;"
                 isError = true;
             }
 
             if(!isError){
-                addUser(user);
-                navigate("/");
+                const result = await addUser(user);
+                if(result) {
+                    navigate("/");
+                }
+                else {
+                    setPageError("User with this Username already exists");
+                }
+            }
+            else {
+                setError(newError);
             }
         }
         catch(error) {
@@ -53,26 +69,28 @@ const UserCreate = () => {
     const formData = [
         {
             type: "text", 
-            label: "",
+            label: " ",
             name: "userName",
             value: user.userName,
-            placeHolder: "Enter User Name",
+            placeholder: "Enter User Name",
         },
         {
             type: "password", 
-            label: "",
+            label: "  ",
             name: "password",
             value: user.password,
-            placeHolder: "Enter Password",
+            placeholder: "Enter Password",
         }
     ]
 
     return(
         <div className="center-display">
             <h3 className="title">Create Account</h3>
+            <div className="input-error">{pageError}</div>
             <form className="form" onSubmit={handleSubmit}>
                 {formData.map((data) => (
-                    <InputField 
+                    <InputField
+                        key={data.name} 
                         {...data}
                         error={error[data.name] || ""}
                         onChange={handleChange}

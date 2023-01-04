@@ -8,9 +8,9 @@ type QuizProviderProps = {
 
 export type QuizContextType = {
     user: User,
-    loginUser: (user: UserInfo) => void,
+    loginUser: (user: UserInfo) => Promise<User | undefined>,
     logoutUser: () => void,
-    addUser: (user: UserInfo) => void,
+    addUser: (user: UserInfo) => Promise<User | undefined>,
     addQuestion: (question: QuestionInfo) => void,
 }
 
@@ -22,9 +22,9 @@ const INIT_USER = {
 
 const QuizContext = createContext<QuizContextType>({
     user: INIT_USER,
-    loginUser: () => {},
+    loginUser: () => {return new Promise(() => undefined)},
     logoutUser: () => {},
-    addUser: () => {},
+    addUser: () => {return new Promise(() => undefined)},
     addQuestion: () => {},
 });
 
@@ -42,8 +42,11 @@ export const QuizProvider = ({children}: QuizProviderProps) => {
     const addUser = async (user: UserInfo) => {
         try {
             const result = await addUserAPI(user);
-            localStorage.setItem("user", JSON.stringify(result));
-            setUser(result);
+            if(result) {
+                localStorage.setItem("user", JSON.stringify(result));
+                setUser(result);
+            }
+            return result;
         }
         catch(error)
         {
@@ -55,8 +58,11 @@ export const QuizProvider = ({children}: QuizProviderProps) => {
         //let result : User[] = [];
         try {
             const result = await loginUserAPI(user);
-            localStorage.setItem("user", JSON.stringify(result));
-            setUser(result);
+            if(result) {
+                localStorage.setItem("user", JSON.stringify(result));
+                setUser(result);
+            }
+            return result;
         }
         catch(error)
         {

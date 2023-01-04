@@ -96,7 +96,7 @@ export type Question = FillInBlankQuestion | MultipleChoiceQuestion | AllThatApp
 
 export type Tags = Map<string, boolean>;
 
-export const loginUserAPI = async (user: UserInfo): Promise<User> => {
+export const loginUserAPI = async (user: UserInfo): Promise<User | undefined> => {
    
     const response: Response = await fetch(URL_USERS);
     if(!response.ok) {
@@ -107,16 +107,32 @@ export const loginUserAPI = async (user: UserInfo): Promise<User> => {
         if(userInList.userName === user.userName && userInList.password === user.password) {
             return(userInList);
         }
-    })
-    if(!result) {
-        throw Error("Could not find user");
-    }
-    else {
-        return(result);
-    }
+    });
+    // if(!result) {
+    //     throw Error("Invalid Username or Password");
+    // }
+    // else {
+    return(result);
+    //}
 }
 
-export const addUserAPI = async (newUser: UserInfo): Promise<User> => {
+export const addUserAPI = async (newUser: UserInfo): Promise<User | undefined> => {
+
+    const userResponse: Response = await fetch(URL_USERS);
+    if(!userResponse.ok) {
+        throw Error("Could not add user");
+    }
+    const users = await userResponse.json() as Promise<User[]>;
+    const userExists = (await users).find((userInList) => {
+        if(userInList.userName === userInList.userName) {
+            return(userInList);
+        }
+    });
+
+    if(userExists) {
+        //throw Error("User with this Username already exists");
+        return undefined;
+    }
   
     const response = await fetch(URL_USERS, {
         method: "POST",

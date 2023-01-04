@@ -27,13 +27,86 @@ const QuestCreate = () => {
 
     const [questionInfo, setQuestionInfo] = useState<QuestionInfo>(INIT_QUESTION);
     const [error, setError] = useState<InputError>({});
+    const [pageError, setPageError] = useState<string>("");
 
     const isQuestionValid = (): boolean => {
         let result = true;
 
+        setPageError("");
+        setError({});
+
+        const newError: InputError = {};
+
         if(!questionInfo.question.length) {
-            setError({...error, ["question"]: "Enter a question"})
+            //setError({...error, ["question"]: "Enter a question"})
+            newError["question"] = "Enter a question";
+            result = false;
         }
+
+        switch(questionInfo.type) {
+            case QuestionType.fillInBlank:
+                if(!questionInfo.answer.length) {
+                    newError["answer"] = "Enter an answer";
+                    result = false;
+                }
+            break;
+
+            case QuestionType.multipleChoice:
+                if(!questionInfo.answer.length) {
+                    newError["answer"] = "Enter an answer";
+                    result = false;
+                }
+                if(!questionInfo.option1.length) {
+                    newError["option1"] = "Enter an answer";
+                    result = false;
+                }
+                if(!questionInfo.option2.length) {
+                    newError["option2"] = "Enter an answer";
+                    result = false;
+                }
+                if(!questionInfo.option3.length) {
+                    newError["option3"] = "Enter an answer";
+                    result = false;
+                }
+            break;
+
+            case QuestionType.allThatApply:
+                if(!questionInfo.answer1.length) {
+                    newError["answer1"] = "Enter an answer";
+                    result = false;
+                }
+                if(!questionInfo.answer2.length) {
+                    newError["answer2"] = "Enter an answer";
+                    result = false;
+                }
+                if(!questionInfo.answer3.length) {
+                    newError["answer3"] = "Enter an answer";
+                    result = false;
+                }
+                if(!questionInfo.answer4.length) {
+                    newError["answer4"] = "Enter an answer";
+                    result = false;
+                }
+            break;
+        }
+
+        let isTagsValid = false;
+        for(const key of questionInfo.tags.keys()) {
+            const tagChecked = questionInfo.tags.get(key);
+            if(tagChecked) {
+                isTagsValid = true;
+                break;
+            }
+        }
+
+        if(!isTagsValid) {
+            setPageError("Select a tag");
+        }
+
+        if(!result) {
+            setError(newError);
+        }
+
         return(result);
     }
 
@@ -204,7 +277,7 @@ const QuestCreate = () => {
                             label={data.label + ": "}
                             type="text"
                             name={data.name}
-                            error={data.name || ""}
+                            error={error[data.name] || ""}
                             value={data.value}
                             onChange={({target: {name, value}}: React.ChangeEvent<HTMLInputElement>) => {
                                 setQuestionInfo({...questionInfo, [name]: value});
@@ -311,6 +384,7 @@ const QuestCreate = () => {
     return(
         <div className="center-display">
             <h3 className="title">Add Question</h3>
+            <div className="input-error">{pageError}</div>
             <form className="form" onSubmit={handleSubmit}>
                 {/* <input
                     className="form-input" 
@@ -325,6 +399,7 @@ const QuestCreate = () => {
                     label="Question: " 
                     name="question" 
                     type="text"
+                    value={questionInfo.question}
                     error={error["question"] || ""}
                     onChange={({target: {value}}: React.ChangeEvent<HTMLInputElement>) => {
                         setQuestionInfo({...questionInfo, question: value});
@@ -338,6 +413,10 @@ const QuestCreate = () => {
                     value={questionInfo.type}
                     onChange={({target: {value}}: React.ChangeEvent<HTMLSelectElement>) => {
                         //setType(value as QuestionType);
+
+                        setError({});
+                        setPageError("");
+
                         switch(value) {
                             case QuestionType.fillInBlank:
                                 setQuestionInfo({
@@ -418,7 +497,14 @@ const QuestCreate = () => {
                         </React.Fragment>
                     ))}
                 </div>
-                <input className="form-btn" type="submit" value="Add Question"/>
+                <ul className="menu-list">
+                    <li>
+                        <input className="form-btn" type="submit" value="Add Question"/> 
+                    </li>
+                    <li>
+                        <input className="form-btn" type="button" value="Main Menu" onClick={() => {navigate("/")}}/>
+                    </li>
+                </ul>
             </form>
         </div>
     );
