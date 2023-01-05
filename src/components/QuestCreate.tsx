@@ -155,7 +155,10 @@ const QuestCreate = () => {
                     error={error["answer"] || ""}
                     value={questionInfo.answer} 
                     onChange={({target: {value}}: React.ChangeEvent<HTMLInputElement>) => {
-                        setQuestionInfo({...questionInfo, answer: value});
+                        setQuestionInfo({ 
+                            ...questionInfo,
+                            answer: value,   
+                        });
                     }}
                  />
             </>
@@ -195,7 +198,10 @@ const QuestCreate = () => {
                         {...data}
                         error={error[data.name] || ""}
                         onChange={({target: {name, value}}: React.ChangeEvent<HTMLInputElement>) => {
-                            setQuestionInfo({...questionInfo, [name]: value});
+                            setQuestionInfo({
+                                ...questionInfo, 
+                                [name]: value
+                            });
                         }}
                     />
                 ))}
@@ -421,35 +427,41 @@ const QuestCreate = () => {
                             case QuestionType.fillInBlank:
                                 setQuestionInfo({
                                     //type: QuestionType.fillInBlank,
-                                    ...questionInfo,
+                                    //...questionInfo,
+                                    question: questionInfo.question,
                                     type: value,
-                                    answer: ""
+                                    answer: "",
+                                    tags: questionInfo.tags,
                                 });
                             break;
                             case QuestionType.multipleChoice:
                                 setQuestionInfo({
                                     //type: QuestionType.multipleChoice,
-                                    ...questionInfo,
+                                    //...questionInfo,
+                                    question: questionInfo.question,
                                     type: value,
                                     answer: "",
                                     option1: "",
                                     option2:"",
                                     option3:"",
+                                    tags: questionInfo.tags,
                                 });
                             break;
                             case QuestionType.allThatApply:
                                 setQuestionInfo({
                                     //type: QuestionType.allThatApply,
-                                    ...questionInfo,
+                                    //...questionInfo,
+                                    question: questionInfo.question,
                                     type: value,
-                                answer1: "",
-                                answer1Applies: false,
-                                answer2: "",
-                                answer2Applies: false,
-                                answer3: "",
-                                answer3Applies: false,
-                                answer4: "",
-                                answer4Applies: false,
+                                    answer1: "",
+                                    answer1Applies: false,
+                                    answer2: "",
+                                    answer2Applies: false,
+                                    answer3: "",
+                                    answer3Applies: false,
+                                    answer4: "",
+                                    answer4Applies: false,
+                                    tags: questionInfo.tags,
                                 });
                             break;
                             default:

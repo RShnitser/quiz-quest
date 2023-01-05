@@ -6,6 +6,16 @@
       "id": 1
     }
   ],
-  "questions": [],
+  "questions": [
+    {
+      "question": "test",
+      "type": "Fill in the blank",
+      "answer": "test",
+      "tags": [
+        "HTML"
+      ],
+      "id": 1
+    }
+  ],
   "history": []
 }

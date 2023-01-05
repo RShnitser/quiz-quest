@@ -13,6 +13,11 @@ export type User = {
     password: string
 }
 
+export type Settings = {
+    count: number,
+    tags: Array<string>,
+}
+
 // export type QuestionInfo = {
 //     question: string;
 //     answer: Answer,
@@ -170,4 +175,15 @@ export const addQuestionAPI = async (newQuestion: QuestionInfo) => {
 
     const addedQuestion = await response.json() as Promise<Question>;
     return(addedQuestion); 
+}
+
+export const getQuestAPI = async (settings: Settings) => {
+
+    const response = await fetch(URL_QUESTIONS);
+    if(!response.ok) {
+        throw Error("Could not fetch questions");
+    }
+
+    const questions = await response.json();
+    return questions as Promise<Array<Question>>;
 }

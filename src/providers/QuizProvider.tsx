@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import { loginUserAPI, addUserAPI, User, UserInfo, addQuestionAPI } from "../quiz-api/quiz-api";
+import { loginUserAPI, addUserAPI, User, UserInfo, Question, addQuestionAPI, Settings, getQuestAPI } from "../quiz-api/quiz-api";
 import { QuestionInfo} from "../quiz-api/quiz-api";
 
 type QuizProviderProps = {
@@ -12,6 +12,7 @@ export type QuizContextType = {
     logoutUser: () => void,
     addUser: (user: UserInfo) => Promise<User | undefined>,
     addQuestion: (question: QuestionInfo) => void,
+    getQuest: (settings: Settings) => Promise<Array<Question> | undefined>;
 }
 
 const INIT_USER = {
@@ -26,6 +27,7 @@ const QuizContext = createContext<QuizContextType>({
     logoutUser: () => {},
     addUser: () => {return new Promise(() => undefined)},
     addQuestion: () => {},
+    getQuest: () => {return new Promise(() => undefined)},
 });
 
 export const QuizProvider = ({children}: QuizProviderProps) => {
@@ -86,6 +88,16 @@ export const QuizProvider = ({children}: QuizProviderProps) => {
             console.error(error);
         }
     }
+
+    const getQuest = async (settings: Settings) => {
+        try {
+            const result = await getQuestAPI(settings);
+            return result;
+        }
+        catch(error) {
+            console.error(error);
+        }
+    }
     
     return(
         <QuizContext.Provider value={{
@@ -94,6 +106,7 @@ export const QuizProvider = ({children}: QuizProviderProps) => {
             logoutUser,
             addUser,
             addQuestion,
+            getQuest,
         }}>
             {children}
         </QuizContext.Provider>
