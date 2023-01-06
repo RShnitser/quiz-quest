@@ -57,10 +57,10 @@
     /* gap: 0 100px; */
 }
 
-.form-grid > div {
+/* .form-grid > div {
     max-width: 150px;
     justify-content: space-between;
-}
+} */
 
 /* .form-grid .input-error {
     grid-column: 1 /span 2;

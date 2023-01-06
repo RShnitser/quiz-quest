@@ -15,6 +15,34 @@
         "HTML"
       ],
       "id": 1
+    },
+    {
+      "question": "all that apply",
+      "type": "All that apply",
+      "answer1": "aaa",
+      "answer1Applies": false,
+      "answer2": "bbb",
+      "answer2Applies": false,
+      "answer3": "ccccc",
+      "answer3Applies": false,
+      "answer4": "dddddd",
+      "answer4Applies": false,
+      "tags": [
+        "CSS"
+      ],
+      "id": 2
+    },
+    {
+      "question": "multiple choice",
+      "type": "Multiple Choice",
+      "answer": "aaaa",
+      "option1": "bbb",
+      "option2": "cccc",
+      "option3": "ddddd",
+      "tags": [
+        "Git"
+      ],
+      "id": 3
     }
   ],
   "history": []

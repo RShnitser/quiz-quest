@@ -12,13 +12,19 @@
 }
 
 .input-horizontal {
+    /* display: grid;
+    grid-template-columns: repeat(2, 1fr); */
     display: flex;
     align-items: center;
 }
 
+.input-horizontal label{
+    margin-left: 20px;
+}
+
 .input-vertical {
     display: flex;
-    flex-direction: column;
+    flex-direction: column-reverse;
 }
 
 .input-error {

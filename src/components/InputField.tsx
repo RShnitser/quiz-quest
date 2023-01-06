@@ -3,12 +3,13 @@ import "./InputField.css";
 type InputFieldProps = {
     label: string;
     type: string;
+    error: string;
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
     
     name?: string;
     checked?: boolean;
     value?: string;
-    error: string;
+    //className?: string;
 }
 
 const InputField = ({label, type, error, ...props}: InputFieldProps) => {
@@ -21,13 +22,13 @@ const InputField = ({label, type, error, ...props}: InputFieldProps) => {
                 ? "input-vertical" 
                 : "input-horizontal"}
             >
-                <label className="input-label" htmlFor={label}>{label}</label>
                 <input 
                     id={label}
                     type={type}
                     className={error.length ? "input-field input-error-bg" : "input-field"}
                     {...props}
                 />
+                <label className="input-label" htmlFor={label}>{label}</label>
             </div>
             <div className="input-error">{error}</div>
         </>
