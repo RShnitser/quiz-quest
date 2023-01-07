@@ -8,9 +8,9 @@
   ],
   "questions": [
     {
-      "question": "test",
+      "question": "fill in blank",
       "type": "Fill in the blank",
-      "answer": "test",
+      "answer": "answer",
       "tags": [
         "HTML"
       ],
@@ -19,14 +19,24 @@
     {
       "question": "all that apply",
       "type": "All that apply",
-      "answer1": "aaa",
-      "answer1Applies": false,
-      "answer2": "bbb",
-      "answer2Applies": false,
-      "answer3": "ccccc",
-      "answer3Applies": false,
-      "answer4": "dddddd",
-      "answer4Applies": false,
+      "options": [
+        {
+          "answer": "answer1",
+          "answerApplies": true
+        },
+        {
+          "answer": "answer2",
+          "answerApplies": true
+        },
+        {
+          "answer": "fake1",
+          "answerApplies": false
+        },
+        {
+          "answer": "fake2",
+          "answerApplies": false
+        }
+      ],
       "tags": [
         "CSS"
       ],
@@ -35,12 +45,15 @@
     {
       "question": "multiple choice",
       "type": "Multiple Choice",
-      "answer": "aaaa",
-      "option1": "bbb",
-      "option2": "cccc",
-      "option3": "ddddd",
+      "answer": "answer",
+      "options": [
+        "answer",
+        "fake1",
+        "fake2",
+        "fake3"
+      ],
       "tags": [
-        "Git"
+        "Javascript"
       ],
       "id": 3
     }

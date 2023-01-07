@@ -56,36 +56,48 @@ const QuestCreate = () => {
                     newError["answer"] = "Enter an answer";
                     result = false;
                 }
-                if(!questionInfo.option1.length) {
-                    newError["option1"] = "Enter an answer";
-                    result = false;
-                }
-                if(!questionInfo.option2.length) {
-                    newError["option2"] = "Enter an answer";
-                    result = false;
-                }
-                if(!questionInfo.option3.length) {
-                    newError["option3"] = "Enter an answer";
-                    result = false;
+                // if(!questionInfo.option1.length) {
+                //     newError["option1"] = "Enter an answer";
+                //     result = false;
+                // }
+                // if(!questionInfo.option2.length) {
+                //     newError["option2"] = "Enter an answer";
+                //     result = false;
+                // }
+                // if(!questionInfo.option3.length) {
+                //     newError["option3"] = "Enter an answer";
+                //     result = false;
+                // }
+                for(let i = 0; i < questionInfo.options.length; i++) {
+                    const option = questionInfo.options[i];
+                    if(option.length === 0) {
+                        newError[`option${i}`] = "Enter an answer";
+                    }
                 }
             break;
 
             case QuestionType.allThatApply:
-                if(!questionInfo.answer1.length) {
-                    newError["answer1"] = "Enter an answer";
-                    result = false;
-                }
-                if(!questionInfo.answer2.length) {
-                    newError["answer2"] = "Enter an answer";
-                    result = false;
-                }
-                if(!questionInfo.answer3.length) {
-                    newError["answer3"] = "Enter an answer";
-                    result = false;
-                }
-                if(!questionInfo.answer4.length) {
-                    newError["answer4"] = "Enter an answer";
-                    result = false;
+                // if(!questionInfo.answer1.length) {
+                //     newError["answer1"] = "Enter an answer";
+                //     result = false;
+                // }
+                // if(!questionInfo.answer2.length) {
+                //     newError["answer2"] = "Enter an answer";
+                //     result = false;
+                // }
+                // if(!questionInfo.answer3.length) {
+                //     newError["answer3"] = "Enter an answer";
+                //     result = false;
+                // }
+                // if(!questionInfo.answer4.length) {
+                //     newError["answer4"] = "Enter an answer";
+                //     result = false;
+                // }
+                for(let i = 0; i < questionInfo.options.length; i++) {
+                    const option = questionInfo.options[i];
+                    if(option.answer.length === 0) {
+                        newError[`answer${i}`] = "Enter an answer";
+                    }
                 }
             break;
         }
@@ -166,41 +178,64 @@ const QuestCreate = () => {
         case QuestionType.multipleChoice:
 
             const multipleChoiceData = [
-                {
-                    label: "Answer: ",
-                    type: "text", 
-                    name: "answer", 
-                    value: questionInfo.answer,
-                },
+                // {
+                //     label: "Answer: ",
+                //     type: "text", 
+                //     name: "answer", 
+                //     value: questionInfo.answer,
+                // },
                 {
                     label: "Wrong Choice 1: ",
                     type: "text", 
-                    name: "option1", 
-                    value: questionInfo.option1,
+                    name: "option0", 
+                    value: questionInfo.options[1],
                 },
                 {
                     label: "Wrong Choice 2: ",
                     type: "text", 
-                    name: "option2", 
-                    value: questionInfo.option2,
+                    name: "option1", 
+                    value: questionInfo.options[2],
                 },
                 {
                     label: "Wrong Choice 3: ",
                     type: "text", 
-                    name: "option3", 
-                    value: questionInfo.option3,
+                    name: "option2", 
+                    value: questionInfo.options[3],
                 },
             ];
             inputs = <>
-                {multipleChoiceData.map((data) => (
+                <InputField
+                    key={"Answer"}
+                    label="Answer"
+                    type="text"
+                    name="answer"
+                    error={error["answer"] || ""}
+                        onChange={({target: {name, value}}: React.ChangeEvent<HTMLInputElement>) => {
+                            const options = [
+                                ...questionInfo.options
+                            ]
+                            options[0] = value;
+                            setQuestionInfo({
+                                ...questionInfo, 
+                                answer: value,
+                                options: options,
+                            });
+                        }}
+                />
+            
+                {multipleChoiceData.map((data, index) => (
                     <InputField
                         key={data.label}
                         {...data}
                         error={error[data.name] || ""}
                         onChange={({target: {name, value}}: React.ChangeEvent<HTMLInputElement>) => {
+                            const options = [
+                                ...questionInfo.options
+                            ]
+                            options[index + 1] = value;
                             setQuestionInfo({
                                 ...questionInfo, 
-                                [name]: value
+                                options: options,
                             });
                         }}
                     />
@@ -252,32 +287,32 @@ const QuestCreate = () => {
             const allThatApplyData = [
                 {
                     label: "Answer 1",
-                    name: "answer1",
-                    value: questionInfo.answer1,
-                    applies: questionInfo.answer1Applies,
+                    name: "answer0",
+                    value: questionInfo.options[0].answer,
+                    applies: questionInfo.options[0].answerApplies,
                 },
                 {
                     label: "Answer 2",
-                    name: "answer2",
-                    value: questionInfo.answer2,
-                    applies: questionInfo.answer2Applies,
+                    name: "answer1",
+                    value: questionInfo.options[1].answer,
+                    applies: questionInfo.options[1].answerApplies,
                 },
                 {
                     label: "Answer 3",
-                    name: "answer3",
-                    value: questionInfo.answer3,
-                    applies: questionInfo.answer3Applies,
+                    name: "answer2",
+                    value: questionInfo.options[2].answer,
+                    applies: questionInfo.options[2].answerApplies,
                 },
                 {
                     label: "Answer 4",
-                    name: "answer4",
-                    value: questionInfo.answer4,
-                    applies: questionInfo.answer4Applies,
+                    name: "answer3",
+                    value: questionInfo.options[3].answer,
+                    applies: questionInfo.options[3].answerApplies,
                 },
             ];
 
             inputs = <>
-                {allThatApplyData.map((data) => (
+                {allThatApplyData.map((data, index) => (
                     <React.Fragment key={data.name}>
                         <InputField
                             label={data.label + ": "}
@@ -286,7 +321,11 @@ const QuestCreate = () => {
                             error={error[data.name] || ""}
                             value={data.value}
                             onChange={({target: {name, value}}: React.ChangeEvent<HTMLInputElement>) => {
-                                setQuestionInfo({...questionInfo, [name]: value});
+                                const options = [
+                                    ...questionInfo.options
+                                ]
+                                options[index].answer = value;
+                                setQuestionInfo({...questionInfo, options: options});
                             }}
                         />
                         <InputField
@@ -296,7 +335,11 @@ const QuestCreate = () => {
                             error=""
                             //value={data.value}
                             onChange={({target: {name}}: React.ChangeEvent<HTMLInputElement>) => {
-                                setQuestionInfo({...questionInfo, [name]: !data.applies});
+                                const options = [
+                                    ...questionInfo.options
+                                ]
+                                options[index].answerApplies = !data.applies;
+                                setQuestionInfo({...questionInfo, options: options});
                             }}
                         />
                     </React.Fragment>
@@ -441,9 +484,7 @@ const QuestCreate = () => {
                                     question: questionInfo.question,
                                     type: value,
                                     answer: "",
-                                    option1: "",
-                                    option2:"",
-                                    option3:"",
+                                    options: ["", "", "", ""],
                                     tags: questionInfo.tags,
                                 });
                             break;
@@ -453,14 +494,19 @@ const QuestCreate = () => {
                                     //...questionInfo,
                                     question: questionInfo.question,
                                     type: value,
-                                    answer1: "",
-                                    answer1Applies: false,
-                                    answer2: "",
-                                    answer2Applies: false,
-                                    answer3: "",
-                                    answer3Applies: false,
-                                    answer4: "",
-                                    answer4Applies: false,
+                                    // answer1: "",
+                                    // answer1Applies: false,
+                                    // answer2: "",
+                                    // answer2Applies: false,
+                                    // answer3: "",
+                                    // answer3Applies: false,
+                                    // answer4: "",
+                                    // answer4Applies: false,
+                                    options: [
+                                        {answer: "", answerApplies: false}, 
+                                        {answer: "", answerApplies: false}, 
+                                        {answer: "", answerApplies: false}, 
+                                        {answer: "", answerApplies: false}],
                                     tags: questionInfo.tags,
                                 });
                             break;

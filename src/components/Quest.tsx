@@ -29,18 +29,19 @@ import { InputError } from "./QuizApp/QuizApp";
 type Answer = {
     //type: QuestionType;
     answer: string;
-    answer1Applies: boolean;
-    answer2Applies: boolean;
-    answer3Applies: boolean;
-    answer4Applies: boolean;
+    [key: string]: boolean | string;
+    // answer1Applies: boolean;
+    // answer2Applies: boolean;
+    // answer3Applies: boolean;
+    // answer4Applies: boolean;
 }
 
 const INIT_ANSWER : Answer = {
     answer: "",
-    answer1Applies: false,
-    answer2Applies: false,
-    answer3Applies: false,
-    answer4Applies: false,
+    // answer1Applies: false,
+    // answer2Applies: false,
+    // answer3Applies: false,
+    // answer4Applies: false,
 }
 
 
@@ -49,21 +50,21 @@ const Quest = () => {
     const {getQuest}: QuizContextType = useQuiz();
     const navigate = useNavigate();
 
-    const [questions, setQuestions] = useState<Array<React.ReactNode>>([]);
+    const [questions, setQuestions] = useState<Array<Question>>([]);
     const [questionIndex, setQuestionIndex] = useState<number>(0);
     const [answer, setAnswer] = useState<Answer>(INIT_ANSWER);
     const [error, setError] = useState<InputError>({});
-
+   
     useEffect(() => {
         const getQuizQuestions = async () => {
 
             try {
                 const result = await getQuest({count: 0, tags: []});
                 if(result) {
-                    const questionNodes = result.map((question) => (
-                        buildAnswerInput(question)
-                    ));
-                    setQuestions(questionNodes);
+                    // const questionNodes = result.map((question) => (
+                    //     buildAnswerInput(question)
+                    // ));
+                    setQuestions(result);
                 }
             }
             catch(error) {
@@ -115,7 +116,7 @@ const Quest = () => {
                      value={answer.answer}
                      onChange={({target: {value}}: React.ChangeEvent<HTMLInputElement>) => {
                          setAnswer({
-                             ...answer,
+                             //...answer,
                              answer: value
                          })
                      }}
@@ -124,75 +125,115 @@ const Quest = () => {
             break;
             case QuestionType.allThatApply:
                 input = <div className="form-grid">
-                     {shuffleArray([<InputField
-                        key="input-1"
-                        label={question.answer1}
-                        type="checkbox"
-                        name={question.answer1}
-                        checked={answer.answer1Applies}
-                        error=""
-                        //value={d}
-                        onChange={() => {
-                            console.log(answer.answer1Applies);
-                            setAnswer({
-                                ...answer,
-                                answer1Applies: !answer.answer1Applies,
-                            })
-                        }}
-                    />,
-
-                    <InputField
-                        key="input-2"
-                        label={question.answer2}
-                        type="checkbox"
-                        name={question.answer2}
-                        checked={answer.answer2Applies}
-                        error=""
-                        //value={data.value}
-                        onChange={() => {
-                            setAnswer({
-                                ...answer,
-                                answer2Applies: !answer.answer2Applies,
-                            })
-                        }}
-                    />,
-
-                    <InputField
-                        key="input-3"
-                        label={question.answer3}
-                        type="checkbox"
-                        name={question.answer3}
-                        error=""
-                        //value={data.value}
-                        checked={answer.answer3Applies}
-                        onChange={() => {
-                            setAnswer({
-                                ...answer,
-                                answer3Applies: !answer.answer3Applies,
-                            })
-                        }}
-                    />,
-
-                    <InputField
-                        key="input-4"
-                        label={question.answer4}
-                        type="checkbox"
-                        name={question.answer4}
-                        error=""
-                        //value={data.value}
-                        checked={answer.answer4Applies}
-                        onChange={() => {
-                            setAnswer({
-                                ...answer,
-                                answer4Applies: !answer.answer4Applies,
-                            })
-                        }}
-                    />])}
+                    {question.options.map((option, index) => (
+                        
+                        <InputField
+                            key={option.answer}
+                            label={option.answer}
+                            type="checkbox"
+                            name={option.answer}
+                            checked={answer[`answer${index}Applies`] as boolean || false}
+                            error=""
+                            //value={d}
+                            onChange={() => {
+                                //console.log(answer.answer1Applies);
+                                setAnswer({
+                                    ...answer,
+                                    //answer1Applies: !answer.answer1Applies,
+                                    [`answer${index}Applies`]: !answer[`answer${index}Applies`]
+                                })
+                            }}
+                        />
+                    ))}
                 </div>
+                // input = <div className="form-grid">
+                //      <InputField
+                //         //key="input-1"
+                //         label={question.options[0].answer}
+                //         type="checkbox"
+                //         name={question.}
+                //         checked={answer.answer1Applies}
+                //         error=""
+                //         //value={d}
+                //         onChange={() => {
+                //             //console.log(answer.answer1Applies);
+                //             setAnswer({
+                //                 ...answer,
+                //                 answer1Applies: !answer.answer1Applies,
+                //             })
+                //         }}
+                //     />
+
+                //     <InputField
+                //         //key="input-2"
+                //         label={question.options[0].answer}
+                //         type="checkbox"
+                //         name={question.answer2}
+                //         checked={answer.answer2Applies}
+                //         error=""
+                //         //value={data.value}
+                //         onChange={() => {
+                //             setAnswer({
+                //                 ...answer,
+                //                 answer2Applies: !answer.answer2Applies,
+                //             })
+                //         }}
+                //     />
+
+                //     <InputField
+                //         //key="input-3"
+                //         label={question.answer3}
+                //         type="checkbox"
+                //         name={question.answer3}
+                //         error=""
+                //         //value={data.value}
+                //         checked={answer.answer3Applies}
+                //         onChange={() => {
+                //             setAnswer({
+                //                 ...answer,
+                //                 answer3Applies: !answer.answer3Applies,
+                //             })
+                //         }}
+                //     />
+
+                //     <InputField
+                //         //key="input-4"
+                //         label={question.answer4}
+                //         type="checkbox"
+                //         name={question.answer4}
+                //         error=""
+                //         //value={data.value}
+                //         checked={answer.answer4Applies}
+                //         onChange={() => {
+                //             setAnswer({
+                //                 ...answer,
+                //                 answer4Applies: !answer.answer4Applies,
+                //             })
+                //         }}
+                //     />
+                // </div>
             break;
             case QuestionType.multipleChoice:
+                console.log(question);
                 input = <div className="form-grid">
-                    {shuffleArray([<InputField
+                    {question.options.map((option, index) => (
+                        <InputField
+                            key={option}
+                            label={option}
+                            type="radio"
+                            name="answer"
+                            error=""
+                            value={option}
+                            //className="form-btn"
+                            onChange={({target: {value}}: React.ChangeEvent<HTMLInputElement>) => {
+                                setAnswer({
+                                    //...answer,
+                                    answer: value,
+                                })
+                            }}
+                        />
+                    ))}
+                    {/* <InputField
                         key="input-1"
                         label={question.answer}
                         type="radio"
@@ -206,7 +247,7 @@ const Quest = () => {
                                 answer: value,
                             })
                         }}
-                    />,
+                    />
 
                     <InputField
                         key="input-2"
@@ -219,7 +260,7 @@ const Quest = () => {
                         onChange={({target: {name}}: React.ChangeEvent<HTMLInputElement>) => {
                            
                         }}
-                    />,
+                    />
 
                     <InputField
                         key="input-3"
@@ -232,7 +273,7 @@ const Quest = () => {
                         onChange={({target: {name}}: React.ChangeEvent<HTMLInputElement>) => {
                            
                         }}
-                    />,
+                    />
 
                     <InputField
                         key="input-3"
@@ -245,7 +286,7 @@ const Quest = () => {
                         onChange={({target: {name}}: React.ChangeEvent<HTMLInputElement>) => {
                            
                         }}
-                    />])}
+                    /> */}
                 </div>
             break;
             default:
@@ -266,8 +307,8 @@ const Quest = () => {
         <div className="center-display">
             <form className="form" onSubmit={handleSubmit}>
                 {questions.length ? 
-                    //buildAnswerInput(questions[questionIndex])
-                    questions[questionIndex]
+                    buildAnswerInput(questions[questionIndex])
+                    //questions[questionIndex]
                     :<div>No Questions Available</div>}
                 <ul className="menu-list">
                     <li>

@@ -42,23 +42,25 @@ type MultipleChoiceQuestionInfo = {
     tags: Tags;
     type: QuestionType.multipleChoice;
     answer: string;
-    option1: string;
-    option2: string;
-    option3: string;
+    // option1: string;
+    // option2: string;
+    // option3: string;
+    options: Array<string>
 }
 
 type AllThatApplyQuestionInfo = {
     question: string;
     tags: Tags;
     type: QuestionType.allThatApply;
-    answer1: string;
-    answer1Applies: boolean;
-    answer2: string;
-    answer2Applies: boolean;
-    answer3: string;
-    answer3Applies: boolean;
-    answer4: string;
-    answer4Applies: boolean;
+    options: Array<AllThatApplyOption>
+    // answer1: string;
+    // answer1Applies: boolean;
+    // answer2: string;
+    // answer2Applies: boolean;
+    // answer3: string;
+    // answer3Applies: boolean;
+    // answer4: string;
+    // answer4Applies: boolean;
 }
 
 export type QuestionInfo = FillInBlankQuestionInfo | MultipleChoiceQuestionInfo | AllThatApplyQuestionInfo;
@@ -77,9 +79,15 @@ type MultipleChoiceQuestion = {
     tags: Array<string>;
     type: QuestionType.multipleChoice;
     answer: string;
-    option1: string;
-    option2: string;
-    option3: string;
+    // option1: string;
+    // option2: string;
+    // option3: string;
+    options: Array<string>
+}
+
+type AllThatApplyOption = {
+    answer: string;
+    answerApplies: boolean;
 }
 
 type AllThatApplyQuestion = {
@@ -87,14 +95,15 @@ type AllThatApplyQuestion = {
     question: string;
     tags: Array<string>;
     type: QuestionType.allThatApply;
-    answer1: string;
-    answer1Applies: boolean;
-    answer2: string;
-    answer2Applies: boolean;
-    answer3: string;
-    answer3Applies: boolean;
-    answer4: string;
-    answer4Applies: boolean;
+    options: Array<AllThatApplyOption>
+    // answer1: string;
+    // answer1Applies: boolean;
+    // answer2: string;
+    // answer2Applies: boolean;
+    // answer3: string;
+    // answer3Applies: boolean;
+    // answer4: string;
+    // answer4Applies: boolean;
 }
 
 export type Question = FillInBlankQuestion | MultipleChoiceQuestion | AllThatApplyQuestion;
