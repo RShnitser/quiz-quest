@@ -26,6 +26,7 @@ const QuestCreate = () => {
     const navigate = useNavigate();
 
     const [questionInfo, setQuestionInfo] = useState<QuestionInfo>(INIT_QUESTION);
+    const [answerCount] = useState<number>(4);
     const [error, setError] = useState<InputError>({});
     const [pageError, setPageError] = useState<string>("");
 
@@ -38,7 +39,6 @@ const QuestCreate = () => {
         const newError: InputError = {};
 
         if(!questionInfo.question.length) {
-            //setError({...error, ["question"]: "Enter a question"})
             newError["question"] = "Enter a question";
             result = false;
         }
@@ -52,22 +52,6 @@ const QuestCreate = () => {
             break;
 
             case QuestionType.multipleChoice:
-                if(!questionInfo.answer.length) {
-                    newError["answer"] = "Enter an answer";
-                    result = false;
-                }
-                // if(!questionInfo.option1.length) {
-                //     newError["option1"] = "Enter an answer";
-                //     result = false;
-                // }
-                // if(!questionInfo.option2.length) {
-                //     newError["option2"] = "Enter an answer";
-                //     result = false;
-                // }
-                // if(!questionInfo.option3.length) {
-                //     newError["option3"] = "Enter an answer";
-                //     result = false;
-                // }
                 for(let i = 0; i < questionInfo.options.length; i++) {
                     const option = questionInfo.options[i];
                     if(option.length === 0) {
@@ -77,22 +61,6 @@ const QuestCreate = () => {
             break;
 
             case QuestionType.allThatApply:
-                // if(!questionInfo.answer1.length) {
-                //     newError["answer1"] = "Enter an answer";
-                //     result = false;
-                // }
-                // if(!questionInfo.answer2.length) {
-                //     newError["answer2"] = "Enter an answer";
-                //     result = false;
-                // }
-                // if(!questionInfo.answer3.length) {
-                //     newError["answer3"] = "Enter an answer";
-                //     result = false;
-                // }
-                // if(!questionInfo.answer4.length) {
-                //     newError["answer4"] = "Enter an answer";
-                //     result = false;
-                // }
                 for(let i = 0; i < questionInfo.options.length; i++) {
                     const option = questionInfo.options[i];
                     if(option.answer.length === 0) {
@@ -150,16 +118,6 @@ const QuestCreate = () => {
     switch(questionInfo.type) {
         case QuestionType.fillInBlank:
             inputs = <>
-                {/* <label htmlFor="fill-in-blank-answer">Answer:</label>
-                 <input 
-                    id="fill-in-blank-answer"
-                    type="text" 
-                    name="answer" 
-                    value={questionInfo.answer} 
-                    onChange={({target: {value}}: React.ChangeEvent<HTMLInputElement>) => {
-                        setQuestionInfo({...questionInfo, answer: value});
-                    }}
-                 /> */}
                  <InputField
                     label="Answer:"
                     type="text" 
@@ -177,254 +135,67 @@ const QuestCreate = () => {
         break;
         case QuestionType.multipleChoice:
 
-            const multipleChoiceData = [
-                // {
-                //     label: "Answer: ",
-                //     type: "text", 
-                //     name: "answer", 
-                //     value: questionInfo.answer,
-                // },
-                {
-                    label: "Wrong Choice 1: ",
-                    type: "text", 
-                    name: "option0", 
-                    value: questionInfo.options[1],
-                },
-                {
-                    label: "Wrong Choice 2: ",
-                    type: "text", 
-                    name: "option1", 
-                    value: questionInfo.options[2],
-                },
-                {
-                    label: "Wrong Choice 3: ",
-                    type: "text", 
-                    name: "option2", 
-                    value: questionInfo.options[3],
-                },
-            ];
-            inputs = <>
-                <InputField
-                    key={"Answer"}
-                    label="Answer"
+            inputs = [];
+            for(let index = 0; index < answerCount; index++){
+                const input = <InputField
+                    key={`choice${index}`}
+                    label={index === 0 ? "Answer :" : `Wrong Choice ${index}: `}
                     type="text"
-                    name="answer"
-                    error={error["answer"] || ""}
-                        onChange={({target: {name, value}}: React.ChangeEvent<HTMLInputElement>) => {
-                            const options = [
-                                ...questionInfo.options
-                            ]
-                            options[0] = value;
-                            setQuestionInfo({
-                                ...questionInfo, 
-                                answer: value,
-                                options: options,
-                            });
-                        }}
+                    name={index === 0 ? "answer" : `option${index - 1}`}
+                    error={error[`option${index}`] || ""}
+                    onChange={({target: {value}}: React.ChangeEvent<HTMLInputElement>) => {
+                        const options = [
+                            ...questionInfo.options
+                        ]
+                        options[index] = value;
+                        setQuestionInfo({
+                            ...questionInfo, 
+                            answer: options[0],
+                            options: options,
+                        });
+                    }}
                 />
-            
-                {multipleChoiceData.map((data, index) => (
-                    <InputField
-                        key={data.label}
-                        {...data}
-                        error={error[data.name] || ""}
-                        onChange={({target: {name, value}}: React.ChangeEvent<HTMLInputElement>) => {
-                            const options = [
-                                ...questionInfo.options
-                            ]
-                            options[index + 1] = value;
-                            setQuestionInfo({
-                                ...questionInfo, 
-                                options: options,
-                            });
-                        }}
-                    />
-                ))}
-                {/* <label htmlFor="multiple-choice-answer">Answer:</label>
-                <input 
-                    id="multiple-choice-answer"
-                    type="text" 
-                    name="answer" 
-                    value={questionInfo.answer} 
-                    onChange={({target: {value}}: React.ChangeEvent<HTMLInputElement>) => {
-                        setQuestionInfo({...questionInfo, answer: value});
-                    }}
-                 />
-                <label htmlFor="multiple-choice-wrong1">Wrong Choice 1:</label>
-                 <input 
-                    id="multiple-choice-wrong1"
-                    type="text" 
-                    name="option1" 
-                    value={questionInfo.option1} 
-                    onChange={({target: {value}}: React.ChangeEvent<HTMLInputElement>) => {
-                        setQuestionInfo({...questionInfo, option1: value});
-                    }}
-                 />
-                <label htmlFor="multiple-choice-wrong2">Wrong Choice 2:</label>
-                 <input 
-                    id="multiple-choice-wrong2"
-                    type="text" 
-                    name="option2" 
-                    value={questionInfo.option2} 
-                    onChange={({target: {value}}: React.ChangeEvent<HTMLInputElement>) => {
-                        setQuestionInfo({...questionInfo, option2: value});
-                    }}
-                 />
-                <label htmlFor="multiple-choice-wrong3">Wrong Choice 3:</label>
-                 <input 
-                    id="multiple-choice-wrong3"
-                    type="text" 
-                    name="option3" 
-                    value={questionInfo.option3} 
-                    onChange={({target: {value}}: React.ChangeEvent<HTMLInputElement>) => {
-                        setQuestionInfo({...questionInfo, option3: value});
-                    }}
-                 /> */}
-            </>
+                inputs.push(input);
+            }
         break;
+
         case QuestionType.allThatApply:
 
-            const allThatApplyData = [
-                {
-                    label: "Answer 1",
-                    name: "answer0",
-                    value: questionInfo.options[0].answer,
-                    applies: questionInfo.options[0].answerApplies,
-                },
-                {
-                    label: "Answer 2",
-                    name: "answer1",
-                    value: questionInfo.options[1].answer,
-                    applies: questionInfo.options[1].answerApplies,
-                },
-                {
-                    label: "Answer 3",
-                    name: "answer2",
-                    value: questionInfo.options[2].answer,
-                    applies: questionInfo.options[2].answerApplies,
-                },
-                {
-                    label: "Answer 4",
-                    name: "answer3",
-                    value: questionInfo.options[3].answer,
-                    applies: questionInfo.options[3].answerApplies,
-                },
-            ];
+            inputs = [];
+            for(let index = 0; index < answerCount; index++) {
+                const input =  <React.Fragment key={`answer${index}`}>
+                    <InputField
+                        label={`Answer ${index + 1}: `}
+                        type="text"
+                        name={`answer${index}`}
+                        error={error[`answer${index}`] || ""}
+                        value={questionInfo.options[index].answer}
+                        onChange={({target: {value}}: React.ChangeEvent<HTMLInputElement>) => {
+                            const options = [
+                                ...questionInfo.options
+                            ]
+                            options[index].answer = value;
+                            setQuestionInfo({...questionInfo, options: options});
+                        }}
+                    />
 
-            inputs = <>
-                {allThatApplyData.map((data, index) => (
-                    <React.Fragment key={data.name}>
-                        <InputField
-                            label={data.label + ": "}
-                            type="text"
-                            name={data.name}
-                            error={error[data.name] || ""}
-                            value={data.value}
-                            onChange={({target: {name, value}}: React.ChangeEvent<HTMLInputElement>) => {
-                                const options = [
-                                    ...questionInfo.options
-                                ]
-                                options[index].answer = value;
-                                setQuestionInfo({...questionInfo, options: options});
-                            }}
-                        />
-                        <InputField
-                            label={data.label + " Apples: "}
+                    <InputField
+                            label={`Answer ${index + 1} Applies: `}
                             type="checkbox"
-                            name={data.name + "Applies"}
+                            name={`answer${index}Applies`}
                             error=""
-                            //value={data.value}
-                            onChange={({target: {name}}: React.ChangeEvent<HTMLInputElement>) => {
+                            onChange={() => {
                                 const options = [
                                     ...questionInfo.options
                                 ]
-                                options[index].answerApplies = !data.applies;
+                                options[index].answerApplies = !options[index].answerApplies;
                                 setQuestionInfo({...questionInfo, options: options});
                             }}
-                        />
-                    </React.Fragment>
-                ))}
-                {/* <label htmlFor="all-that-apply-answer1">Answer 1:</label>
-                <input 
-                    id="all-that-apply-answer1"
-                    type="text" 
-                    name="answer1" 
-                    value={questionInfo.answer1} 
-                    onChange={({target: {value}}: React.ChangeEvent<HTMLInputElement>) => {
-                        setQuestionInfo({...questionInfo, answer1: value});
-                    }}
-                 />
-                <label htmlFor="all-that-apply-check1">Answer 1 Applies:</label>
-                 <input 
-                    id="all-that-apply-check1"
-                    type="checkbox" 
-                    name="answer1Applies" 
-                    checked={questionInfo.answer1Applies} 
-                    onChange={() => {
-                        setQuestionInfo({...questionInfo, answer1Applies: !questionInfo.answer1Applies});
-                    }}
-                 />
-                <label htmlFor="all-that-apply-answer2">Answer 2:</label>
-                 <input 
-                    id="all-that-apply-answer2"
-                    type="text" 
-                    name="answer2" 
-                    value={questionInfo.answer2} 
-                    onChange={({target: {value}}: React.ChangeEvent<HTMLInputElement>) => {
-                        setQuestionInfo({...questionInfo, answer2: value});
-                    }}
-                 />
-                <label htmlFor="all-that-apply-check2">Answer 2 Applies:</label>
-                 <input 
-                    id="all-that-apply-check2"
-                    type="checkbox" 
-                    name="answer2Applies" 
-                    checked={questionInfo.answer2Applies} 
-                    onChange={() => {
-                        setQuestionInfo({...questionInfo, answer2Applies: !questionInfo.answer2Applies});
-                    }}
-                 />
-                 <label htmlFor="all-that-apply-answer3">Answer 3:</label>
-                <input 
-                    id="all-that-apply-answer3"
-                    type="text" 
-                    //name="answer1" 
-                    value={questionInfo.answer3} 
-                    onChange={({target: {value}}: React.ChangeEvent<HTMLInputElement>) => {
-                        setQuestionInfo({...questionInfo, answer3: value});
-                    }}
-                 />
-                <label htmlFor="all-that-apply-check3">Answer 3 Applies:</label>
-                 <input 
-                    id="all-that-apply-check3"
-                    type="checkbox" 
-                    //name="answer1Applies" 
-                    checked={questionInfo.answer3Applies} 
-                    onChange={() => {
-                        setQuestionInfo({...questionInfo, answer3Applies: !questionInfo.answer3Applies});
-                    }}
-                 />
-                <label htmlFor="all-that-apply-answer4">Answer 4:</label>
-                 <input 
-                    id="all-that-apply-answer4"
-                    type="text" 
-                    //name="answer4" 
-                    value={questionInfo.answer2} 
-                    onChange={({target: {value}}: React.ChangeEvent<HTMLInputElement>) => {
-                        setQuestionInfo({...questionInfo, answer4: value});
-                    }}
-                 />
-                <label htmlFor="all-that-apply-check4">Answer 4 Applies:</label>
-                 <input 
-                    id="all-that-apply-check4"
-                    type="checkbox" 
-                    //name="answer4Applies" 
-                    checked={questionInfo.answer4Applies} 
-                    onChange={() => {
-                        setQuestionInfo({...questionInfo, answer4Applies: !questionInfo.answer4Applies});
-                    }}
-                 /> */}
-            </>
+                    />
+                </React.Fragment>
+                inputs.push(input);
+            }
+
         break;
         default:
         break;
@@ -435,15 +206,6 @@ const QuestCreate = () => {
             <h3 className="title">Add Question</h3>
             <div className="input-error">{pageError}</div>
             <form className="form" onSubmit={handleSubmit}>
-                {/* <input
-                    className="form-input" 
-                    type="text" 
-                    name="question" 
-                    value={questionInfo.question} 
-                    onChange={({target: {value}}: React.ChangeEvent<HTMLInputElement>) => {
-                        setQuestionInfo({...questionInfo, question: value});
-                    }}
-                /> */}
                 <InputField 
                     label="Question: " 
                     name="question" 
@@ -461,16 +223,13 @@ const QuestCreate = () => {
                     className="form-option"
                     value={questionInfo.type}
                     onChange={({target: {value}}: React.ChangeEvent<HTMLSelectElement>) => {
-                        //setType(value as QuestionType);
-
+                      
                         setError({});
                         setPageError("");
 
                         switch(value) {
                             case QuestionType.fillInBlank:
                                 setQuestionInfo({
-                                    //type: QuestionType.fillInBlank,
-                                    //...questionInfo,
                                     question: questionInfo.question,
                                     type: value,
                                     answer: "",
@@ -478,35 +237,27 @@ const QuestCreate = () => {
                                 });
                             break;
                             case QuestionType.multipleChoice:
+                                const multipleChoiceOptions = [];
+                                for(let index = 0; index < answerCount; index++) {
+                                    multipleChoiceOptions.push("");
+                                }
                                 setQuestionInfo({
-                                    //type: QuestionType.multipleChoice,
-                                    //...questionInfo,
                                     question: questionInfo.question,
                                     type: value,
                                     answer: "",
-                                    options: ["", "", "", ""],
+                                    options: multipleChoiceOptions,
                                     tags: questionInfo.tags,
                                 });
                             break;
                             case QuestionType.allThatApply:
+                                const allThatApplyOptions = [];
+                                for(let index = 0; index < answerCount; index++) {
+                                    allThatApplyOptions.push({answer: "", answerApplies: false});
+                                }
                                 setQuestionInfo({
-                                    //type: QuestionType.allThatApply,
-                                    //...questionInfo,
                                     question: questionInfo.question,
                                     type: value,
-                                    // answer1: "",
-                                    // answer1Applies: false,
-                                    // answer2: "",
-                                    // answer2Applies: false,
-                                    // answer3: "",
-                                    // answer3Applies: false,
-                                    // answer4: "",
-                                    // answer4Applies: false,
-                                    options: [
-                                        {answer: "", answerApplies: false}, 
-                                        {answer: "", answerApplies: false}, 
-                                        {answer: "", answerApplies: false}, 
-                                        {answer: "", answerApplies: false}],
+                                    options: allThatApplyOptions,
                                     tags: questionInfo.tags,
                                 });
                             break;
@@ -514,7 +265,7 @@ const QuestCreate = () => {
                             break;
                         }
                     }}>
-                    {/* <option value={QuestionType.fillInBlank}>Fill in the blank</option> */}
+        
                     {Object.values(QuestionType).map((value) => (
                         <option key={value} value={value}>{value}</option>
                     ))}
@@ -524,26 +275,12 @@ const QuestCreate = () => {
                 <div className="form-grid">
                     { Array.from(questionInfo.tags.keys()).map((tag) => (
                         <React.Fragment key={tag}>
-                            {/* <label htmlFor={tag}>{`${tag}: `}</label>
-                            <input 
-                                type="checkbox" 
-                                checked={questionInfo.tags.get(tag)}
-                                onChange={() => {
-                                
-                                    setQuestionInfo({
-                                        ...questionInfo, 
-                                        tags: new Map<string, boolean>(questionInfo.tags.set(tag, !questionInfo.tags.get(tag) || false))
-                                    });
-                                    
-                                }}
-                            /> */}
                             <InputField 
                                 label={tag}
                                 type="checkbox"
                                 checked={questionInfo.tags.get(tag)}
                                 error=""
                                 onChange={() => {
-                                
                                     setQuestionInfo({
                                         ...questionInfo, 
                                         tags: new Map<string, boolean>(questionInfo.tags.set(tag, !questionInfo.tags.get(tag) || false))
