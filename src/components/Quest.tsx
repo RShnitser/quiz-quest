@@ -54,6 +54,7 @@ const Quest = () => {
     const [questionIndex, setQuestionIndex] = useState<number>(0);
     const [answer, setAnswer] = useState<Answer>(INIT_ANSWER);
     const [error, setError] = useState<InputError>({});
+    const [pageError, setPageError] = useState<string>("");
    
     useEffect(() => {
         const getQuizQuestions = async () => {
@@ -76,32 +77,57 @@ const Quest = () => {
 
     }, [])
 
-    const isValidAnswer = () => {
+    const isValidAnswer = ():boolean => {
+        let result = true;
 
+        setPageError("");
+        setError({});
+
+        const newError: InputError = {};
+        const question = questions[questionIndex];
+
+        switch(question.type) {
+            case QuestionType.fillInBlank: 
+                if(!answer.answer.length) {
+                    newError["answer"] = "Enter an answer";
+                    result = false;
+                }
+            break;
+            case QuestionType.multipleChoice: 
+            if(!answer.answer.length) {
+                //newError["answer"] = "Enter an answer";
+                setPageError("Select an answer")
+                result = false;
+            }
+            break;
+            default:
+            break;
+        }
+
+        if(!result) {
+            setError(newError);
+        }
+
+        return(result);
     }
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
         e.preventDefault();
 
-        if(questions.length) {
-            if(questionIndex < questions.length - 1) {
-                setQuestionIndex(questionIndex + 1);
-                setAnswer(INIT_ANSWER);
+        if(isValidAnswer()) {
+
+          
+            if(questions.length) {
+                if(questionIndex < questions.length - 1) {
+                    setQuestionIndex(questionIndex + 1);
+                    setAnswer(INIT_ANSWER);
+                }
             }
         }
+
     }
 
-    const shuffleArray = (array: Array<React.ReactNode>) => {
-
-        for(let currentIndex = array.length - 1; currentIndex > 0; currentIndex--) {
-            const randomIndex = Math.floor(Math.random() * (currentIndex + 1));
-            const temp = array[currentIndex];
-            array[currentIndex] = array[randomIndex];
-            array[randomIndex] = temp;
-        }
-
-        return array;
-    }
+   
 
     const buildAnswerInput = (question : Question): React.ReactNode => {
         let input = null;
@@ -295,6 +321,7 @@ const Quest = () => {
         
         return(
             <React.Fragment key={question.id}>
+                <h3 className="quest-count">{`Question ${questionIndex + 1} / ${questions.length}`}</h3>
                 <div className="title">{question.question}</div>
                 {input}
             </React.Fragment>
@@ -310,6 +337,7 @@ const Quest = () => {
                     buildAnswerInput(questions[questionIndex])
                     //questions[questionIndex]
                     :<div>No Questions Available</div>}
+                <div className="input-error">{pageError}</div>
                 <ul className="menu-list">
                     <li>
                         <input className="form-btn" type="submit" value="Submit Answer"/> 

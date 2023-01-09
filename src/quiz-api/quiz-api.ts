@@ -186,6 +186,18 @@ export const addQuestionAPI = async (newQuestion: QuestionInfo) => {
     return(addedQuestion); 
 }
 
+const shuffleArray = (array: Array<any>) => {
+
+    for(let currentIndex = array.length - 1; currentIndex > 0; currentIndex--) {
+        const randomIndex = Math.floor(Math.random() * (currentIndex + 1));
+        const temp = array[currentIndex];
+        array[currentIndex] = array[randomIndex];
+        array[randomIndex] = temp;
+    }
+
+    return array;
+}
+
 export const getQuestAPI = async (settings: Settings) => {
 
     const response = await fetch(URL_QUESTIONS);
@@ -194,5 +206,10 @@ export const getQuestAPI = async (settings: Settings) => {
     }
 
     const questions = await response.json();
+    for(const question of questions) {
+        if(question.type === QuestionType.allThatApply || question.type === QuestionType.multipleChoice) {
+            shuffleArray(question.options);
+        }
+    }
     return questions as Promise<Array<Question>>;
 }
