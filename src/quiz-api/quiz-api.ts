@@ -18,6 +18,12 @@ export type Settings = {
     tags: Array<string>,
 }
 
+export type SettingsInfo = {
+    count: number,
+    tags: Tags,
+}
+
+
 // export type QuestionInfo = {
 //     question: string;
 //     answer: Answer,
