@@ -8,31 +8,41 @@ type QuizProviderProps = {
 
 export type QuizContextType = {
     user: User,
+    settings: Settings,
     loginUser: (user: UserInfo) => Promise<User | undefined>,
     logoutUser: () => void,
     addUser: (user: UserInfo) => Promise<User | undefined>,
     addQuestion: (question: QuestionInfo) => void,
     getQuest: (settings: Settings) => Promise<Array<Question> | undefined>;
+    setSettings: (settings: Settings) => void,
 }
 
-const INIT_USER = {
+const INIT_USER: User = {
     id: -1, 
     userName: "", 
     password: "",
 }
 
+const INIT_SETTINGS: Settings = {
+    count: 5,
+    tags: []
+}
+
 const QuizContext = createContext<QuizContextType>({
     user: INIT_USER,
+    settings: INIT_SETTINGS,
     loginUser: () => {return new Promise(() => undefined)},
     logoutUser: () => {},
     addUser: () => {return new Promise(() => undefined)},
     addQuestion: () => {},
     getQuest: () => {return new Promise(() => undefined)},
+    setSettings: () => {}
 });
 
 export const QuizProvider = ({children}: QuizProviderProps) => {
 
     const [user, setUser] = useState<User>(INIT_USER);
+    const [settings, setSettings] = useState<Settings>(INIT_SETTINGS)
 
     useEffect(() => {
         const loggedInUser = localStorage.getItem("user");
@@ -102,11 +112,13 @@ export const QuizProvider = ({children}: QuizProviderProps) => {
     return(
         <QuizContext.Provider value={{
             user,
+            settings,
             loginUser,
             logoutUser,
             addUser,
             addQuestion,
             getQuest,
+            setSettings,
         }}>
             {children}
         </QuizContext.Provider>

@@ -9,6 +9,8 @@ type InputFieldProps = {
     name?: string;
     checked?: boolean;
     value?: string;
+    min?: string;
+    max?: string;
     //className?: string;
 }
 
@@ -18,7 +20,7 @@ const InputField = ({label, type, error, ...props}: InputFieldProps) => {
     return (
         <>
             <div className={
-                type === "text" || type === "password" 
+                type === "text" || type === "password" || type === "number" 
                 ? "input-vertical" 
                 : "input-horizontal"}
             >
