@@ -205,17 +205,48 @@ const shuffleArray = (array: Array<any>) => {
 }
 
 export const getQuestAPI = async (settings: Settings) => {
-
+ 
     const response = await fetch(URL_QUESTIONS);
     if(!response.ok) {
         throw Error("Could not fetch questions");
     }
 
     const questions = await response.json();
-    for(const question of questions) {
+    
+    const filteredQuestions = settings.tags.length ?
+
+        questions.filter((question: Question) => {
+            for(const tag of settings.tags) {
+                if(question.tags.includes(tag)) {
+                    return true;
+                }
+            }
+            return false;
+        }):
+        questions;
+    
+    let result: Array<Question> = [];
+
+    if(filteredQuestions.length > settings.count) {
+
+        for(let i = 0; i < settings.count; i++) {
+            const randomQuestionIndex = Math.floor(Math.random() * filteredQuestions.length);
+            result.push(filteredQuestions[randomQuestionIndex]);
+            filteredQuestions.splice(randomQuestionIndex, 1);
+        }
+    }
+    else{
+        result = [...filteredQuestions];
+    }
+
+
+    for(const question of result) {
         if(question.type === QuestionType.allThatApply || question.type === QuestionType.multipleChoice) {
             shuffleArray(question.options);
         }
     }
-    return questions as Promise<Array<Question>>;
+    //return result as Promise<Array<Question>>;
+    return new Promise<Array<Question>>((resolve) => {
+        resolve(result);
+    });
 }

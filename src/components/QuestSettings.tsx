@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useQuiz from "../providers/QuizProvider";
 import { QuizContextType } from "../providers/QuizProvider";
 import InputField from "./InputField";
-import { SettingsInfo } from "../quiz-api/quiz-api";
+import { SettingsInfo, Settings } from "../quiz-api/quiz-api";
 
 const INIT_SETTINGS: SettingsInfo = {
     count: 5,
@@ -16,14 +16,43 @@ const INIT_SETTINGS: SettingsInfo = {
     ]),
 }
 
-const Settings = () => {
+const QuestSettings = () => {
 
-    const {addQuestion} : QuizContextType  = useQuiz();
+    const {settings, setSettings} : QuizContextType  = useQuiz();
     const navigate = useNavigate();
-    const [settingsInfo, setQuestionInfo] = useState<SettingsInfo>(INIT_SETTINGS);
+    const [settingsInfo, setSettingsInfo] = useState<SettingsInfo>(INIT_SETTINGS);
 
-    const handleSubmit = () => {
+    useEffect(() => {
+        const newSettings: SettingsInfo = {
+            count: settings.count,
+            tags: new Map([
+                ["HTML", false],
+                ["CSS", false],
+                ["Javascript", false],
+                ["Git", false],
+                ["React", false],
+            ]),
+        }
 
+        for(const tag of settings.tags) {
+            newSettings.tags.set(tag, true);
+        }
+
+        setSettingsInfo(newSettings);
+    }, [])
+
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+
+        const settings: Settings = {
+            count: settingsInfo.count,
+            tags: [...Array.from(settingsInfo.tags.keys()).filter((key) => {
+                return (settingsInfo.tags.get(key));
+            })]
+        }
+
+        setSettings(settings);
+        navigate("/");
     }
 
     return(
@@ -39,7 +68,7 @@ const Settings = () => {
                     value={settingsInfo.count.toString()}
                     error=""
                     onChange={({target: {value}}: React.ChangeEvent<HTMLInputElement>) => {
-                        setQuestionInfo({...settingsInfo, count: parseInt(value)});
+                        setSettingsInfo({...settingsInfo, count: parseInt(value)});
                     }}
                 />
                 <label className="input-label" >Tags:</label>
@@ -52,7 +81,7 @@ const Settings = () => {
                                 checked={settingsInfo.tags.get(tag)}
                                 error=""
                                 onChange={() => {
-                                    setQuestionInfo({
+                                    setSettingsInfo({
                                         ...settingsInfo, 
                                         tags: new Map<string, boolean>(settingsInfo.tags.set(tag, !settingsInfo.tags.get(tag) || false))
                                     });
@@ -69,4 +98,4 @@ const Settings = () => {
     );
 }
 
-export default Settings;
+export default QuestSettings;

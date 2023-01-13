@@ -4,7 +4,7 @@ import { QuizContextType } from "../../providers/QuizProvider";
 import MainMenu from "../MainMenu";
 import Quest from "../Quest";
 import QuestCreate from "../QuestCreate";
-import Settings from "../Settings";
+import QuestSettings from "../QuestSettings";
 import QuestHistory from "../QuestHistory";
 import "./QuizApp.css";
 
@@ -33,7 +33,7 @@ const QuizApp = () => {
             <Routes>
                 <Route path="/" element={<MainMenu />}/>
                 <Route path="/quest" element={<Quest />}/>
-                <Route path="/settings" element={<Settings />}/>
+                <Route path="/settings" element={<QuestSettings />}/>
                 <Route path="/add-quest" element={<QuestCreate />}/>
                 <Route path="/history" element={<QuestHistory />}/>
             </Routes>

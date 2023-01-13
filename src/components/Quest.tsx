@@ -47,7 +47,7 @@ const INIT_ANSWER : Answer = {
 
 const Quest = () => {
 
-    const {getQuest}: QuizContextType = useQuiz();
+    const {getQuest, settings}: QuizContextType = useQuiz();
     const navigate = useNavigate();
 
     const [questions, setQuestions] = useState<Array<Question>>([]);
@@ -60,7 +60,7 @@ const Quest = () => {
         const getQuizQuestions = async () => {
 
             try {
-                const result = await getQuest({count: 0, tags: []});
+                const result = await getQuest(settings);
                 if(result) {
                     // const questionNodes = result.map((question) => (
                     //     buildAnswerInput(question)
@@ -240,7 +240,6 @@ const Quest = () => {
                 // </div>
             break;
             case QuestionType.multipleChoice:
-                console.log(question);
                 input = <div className="form-grid">
                     {question.options.map((option, index) => (
                         <InputField
