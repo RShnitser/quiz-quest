@@ -247,6 +247,6 @@ export const getQuestAPI = async (settings: Settings) => {
     }
     //return result as Promise<Array<Question>>;
     return new Promise<Array<Question>>((resolve) => {
-        resolve(result);
+        resolve(shuffleArray(result));
     });
 }

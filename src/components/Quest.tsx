@@ -53,6 +53,9 @@ const Quest = () => {
     const [questions, setQuestions] = useState<Array<Question>>([]);
     const [questionIndex, setQuestionIndex] = useState<number>(0);
     const [answer, setAnswer] = useState<Answer>(INIT_ANSWER);
+    const [answerArray, setAnswerArray] = useState<Array<Answer>>([]);
+    const [correctCount, setCorrectCount] = useState<number>(0);
+    const [quizComplete, setQuizComplete] = useState<boolean>(false);
     const [error, setError] = useState<InputError>({});
     const [pageError, setPageError] = useState<string>("");
    
@@ -118,9 +121,62 @@ const Quest = () => {
 
           
             if(questions.length) {
+
+                const question = questions[questionIndex];
+                switch(question.type) {
+                    case QuestionType.fillInBlank:
+                        if(question.answer === answer.answer) {
+                            setCorrectCount(correctCount + 1)
+                        }
+                    break;
+                    case QuestionType.allThatApply:
+                        let correct = true;
+                        for(let i = 0; i < question.options.length; i++) {
+                            if(question.options[i].answerApplies !== answer[`answer${i}Applies`]) {
+                                correct = false;
+                                break;
+                            }
+                        }
+                        if(correct) {
+                            setCorrectCount(correctCount + 1)
+                        }
+                    break;
+                    case QuestionType.multipleChoice:
+                        if(question.answer === answer.answer) {
+                            setCorrectCount(correctCount + 1)
+                        }
+                    break;
+                    default:
+                    break;   
+                }
+
+                const newAnswers = [...answerArray];
+                newAnswers.push(answer);
+                setAnswerArray(newAnswers);
+
                 if(questionIndex < questions.length - 1) {
-                    setQuestionIndex(questionIndex + 1);
-                    setAnswer(INIT_ANSWER);
+                    const newQuestionIndex = questionIndex + 1;
+                 
+                    setQuestionIndex(newQuestionIndex);
+
+                    const question = questions[newQuestionIndex];
+                    switch(question.type) {
+                        case QuestionType.allThatApply:
+                            const newAnswer : Answer = {
+                                answer: ""
+                            };
+                            for(let i = 0; i < question.options.length; i++){
+                                newAnswer[`answer${i}Applies`]= false;
+                            }
+                            setAnswer(newAnswer);
+                        break;
+                        default:
+                            setAnswer(INIT_ANSWER);
+                        break;
+                    }
+                }
+                else {
+                    setQuizComplete(true);
                 }
             }
         }
@@ -172,72 +228,7 @@ const Quest = () => {
                         />
                     ))}
                 </div>
-                // input = <div className="form-grid">
-                //      <InputField
-                //         //key="input-1"
-                //         label={question.options[0].answer}
-                //         type="checkbox"
-                //         name={question.}
-                //         checked={answer.answer1Applies}
-                //         error=""
-                //         //value={d}
-                //         onChange={() => {
-                //             //console.log(answer.answer1Applies);
-                //             setAnswer({
-                //                 ...answer,
-                //                 answer1Applies: !answer.answer1Applies,
-                //             })
-                //         }}
-                //     />
-
-                //     <InputField
-                //         //key="input-2"
-                //         label={question.options[0].answer}
-                //         type="checkbox"
-                //         name={question.answer2}
-                //         checked={answer.answer2Applies}
-                //         error=""
-                //         //value={data.value}
-                //         onChange={() => {
-                //             setAnswer({
-                //                 ...answer,
-                //                 answer2Applies: !answer.answer2Applies,
-                //             })
-                //         }}
-                //     />
-
-                //     <InputField
-                //         //key="input-3"
-                //         label={question.answer3}
-                //         type="checkbox"
-                //         name={question.answer3}
-                //         error=""
-                //         //value={data.value}
-                //         checked={answer.answer3Applies}
-                //         onChange={() => {
-                //             setAnswer({
-                //                 ...answer,
-                //                 answer3Applies: !answer.answer3Applies,
-                //             })
-                //         }}
-                //     />
-
-                //     <InputField
-                //         //key="input-4"
-                //         label={question.answer4}
-                //         type="checkbox"
-                //         name={question.answer4}
-                //         error=""
-                //         //value={data.value}
-                //         checked={answer.answer4Applies}
-                //         onChange={() => {
-                //             setAnswer({
-                //                 ...answer,
-                //                 answer4Applies: !answer.answer4Applies,
-                //             })
-                //         }}
-                //     />
-                // </div>
+              
             break;
             case QuestionType.multipleChoice:
                 input = <div className="form-grid">
@@ -258,60 +249,6 @@ const Quest = () => {
                             }}
                         />
                     ))}
-                    {/* <InputField
-                        key="input-1"
-                        label={question.answer}
-                        type="radio"
-                        name="answer"
-                        error=""
-                        value={question.answer}
-                        //className="form-btn"
-                        onChange={({target: {value}}: React.ChangeEvent<HTMLInputElement>) => {
-                            setAnswer({
-                                ...answer,
-                                answer: value,
-                            })
-                        }}
-                    />
-
-                    <InputField
-                        key="input-2"
-                        label={question.option1}
-                        type="radio"
-                        name="answer"
-                        error=""
-                        value={question.option1}
-                        //className="form-btn"
-                        onChange={({target: {name}}: React.ChangeEvent<HTMLInputElement>) => {
-                           
-                        }}
-                    />
-
-                    <InputField
-                        key="input-3"
-                        label={question.option2}
-                        type="radio"
-                        name="answer"
-                        error=""
-                        value={question.option2}
-                        //className="form-btn"
-                        onChange={({target: {name}}: React.ChangeEvent<HTMLInputElement>) => {
-                           
-                        }}
-                    />
-
-                    <InputField
-                        key="input-3"
-                        label={question.option3}
-                        type="radio"
-                        name="answer"
-                        error=""
-                        value={question.option3}
-                        //className="form-btn"
-                        onChange={({target: {name}}: React.ChangeEvent<HTMLInputElement>) => {
-                           
-                        }}
-                    /> */}
                 </div>
             break;
             default:
@@ -331,21 +268,72 @@ const Quest = () => {
 
     return(
         <div className="center-display">
-            <form className="form" onSubmit={handleSubmit}>
-                {questions.length ? 
-                    buildAnswerInput(questions[questionIndex])
-                    //questions[questionIndex]
-                    :<div>No Questions Available</div>}
-                <div className="input-error">{pageError}</div>
-                <ul className="menu-list">
-                    <li>
-                        <input className="form-btn" type="submit" value="Submit Answer"/> 
-                    </li>
-                    <li>
-                        <input className="form-btn" type="button" value="Abandon Quest" onClick={() => {navigate("/")}}/>
-                    </li>
-                </ul>
-            </form>
+        {!quizComplete ?
+             <form className="form" onSubmit={handleSubmit}>
+             {questions.length ? 
+                 buildAnswerInput(questions[questionIndex])
+                 //questions[questionIndex]
+                 :<div>No Questions Available</div>}
+             <div className="input-error">{pageError}</div>
+             <ul className="menu-list">
+                 <li>
+                     <input className="form-btn" type="submit" value="Submit Answer"/> 
+                 </li>
+                 <li>
+                     <input className="form-btn" type="button" value="Abandon Quest" onClick={() => {navigate("/")}}/>
+                 </li>
+             </ul>
+         </form>
+         : <>
+            <div>{`${(correctCount / questions.length * 100).toFixed(2)}%`}</div>
+            {answerArray.map((answer, index) => {
+
+                let result = null;
+                const question = questions[index];
+                switch(question.type) {
+                    case QuestionType.fillInBlank:
+                        result = <React.Fragment>
+                            <div>{answer.answer}</div>
+                            {answer.answer !== question.answer ?
+                                <div>{`Correct Answer: ${question.answer}`}</div>
+                                : null
+                            }
+                        </React.Fragment>
+                    break;
+                    case QuestionType.allThatApply:
+                        result = question.options.map((option) => {
+                            return(
+                                <div key={option.answer}>{option.answer}</div>
+                            );
+                        });
+                    break;
+                    case QuestionType.multipleChoice:
+                        result = question.options.map((option) => {
+                            return(
+                                <div key={option}>{option}</div>
+                            );
+                        });
+                    break;
+                    default:
+                    break;
+                }
+
+                return(<React.Fragment key={`answer${index}`}>
+                    <div>{question.question}</div>
+                        {result}
+                    </React.Fragment>
+                );
+            })}
+            <ul className="menu-list">
+                 {/* <li>
+                     <input className="form-btn" type="submit" value="Submit Answer"/> 
+                 </li> */}
+                 <li>
+                     <input className="form-btn" type="button" value="Main Menu" onClick={() => {navigate("/")}}/>
+                 </li>
+             </ul>
+         </>
+        }
         </div>
     );
 }
