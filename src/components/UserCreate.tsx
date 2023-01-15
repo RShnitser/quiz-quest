@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import useQuiz from "../providers/QuizProvider";
 import { QuizContextType } from "../providers/QuizProvider";
 import { UserInfo } from "../quiz-api/quiz-api";
-import InputField from "./InputField";
+import InputField from "./InputField/InputField";
 import { InputError } from "./QuizApp/QuizApp";
 
 const INIT_USER : UserInfo = {

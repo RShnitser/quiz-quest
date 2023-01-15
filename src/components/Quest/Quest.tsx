@@ -1,49 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import useQuiz from "../providers/QuizProvider";
-import { QuizContextType } from "../providers/QuizProvider";
-import { Question, QuestionType } from "../quiz-api/quiz-api";
-import InputField from "./InputField";
-import { InputError } from "./QuizApp/QuizApp";
-
-// type  AnswerFillInBlank = {
-//     type: QuestionType.fillInBlank;
-//     answer: string;
-// }
-
-// type AnswerMultipleChoice = {
-//     type: QuestionType.multipleChoice;
-//     answer: string;
-// }
-
-// type AnswerAllThatApply = {
-//     type: QuestionType.allThatApply;
-//     answer1Applies: boolean;
-//     answer2Applies: boolean;
-//     answer3Applies: boolean;
-//     answer4Applies: boolean;
-// }
-
-// type Answer = AnswerFillInBlank | AnswerMultipleChoice | AnswerAllThatApply;
+import useQuiz from "../../providers/QuizProvider";
+import { QuizContextType } from "../../providers/QuizProvider";
+import { Question, QuestionType } from "../../quiz-api/quiz-api";
+import InputField from "../InputField/InputField";
+import { InputError } from "../QuizApp/QuizApp";
+import "./Quest.css";
 
 type Answer = {
-    //type: QuestionType;
     answer: string;
     [key: string]: boolean | string;
-    // answer1Applies: boolean;
-    // answer2Applies: boolean;
-    // answer3Applies: boolean;
-    // answer4Applies: boolean;
 }
 
 const INIT_ANSWER : Answer = {
     answer: "",
-    // answer1Applies: false,
-    // answer2Applies: false,
-    // answer3Applies: false,
-    // answer4Applies: false,
 }
-
 
 const Quest = () => {
 
@@ -69,7 +40,24 @@ const Quest = () => {
                     //     buildAnswerInput(question)
                     // ));
                     setQuestions(result);
+
+                    const question = result[0];
+                    switch(question.type) {
+                        case QuestionType.allThatApply:
+                            const newAnswer : Answer = {
+                                answer: ""
+                            };
+                            for(let i = 0; i < question.options.length; i++){
+                                newAnswer[`answer${i}Applies`]= false;
+                            }
+                            setAnswer(newAnswer);
+                        break;
+                        default:
+                            setAnswer(INIT_ANSWER);
+                        break;
+                    }
                 }
+
             }
             catch(error) {
                 console.error(error);
@@ -284,8 +272,8 @@ const Quest = () => {
                  </li>
              </ul>
          </form>
-         : <>
-            <div>{`${(correctCount / questions.length * 100).toFixed(2)}%`}</div>
+         : <div>
+            <div className="quest-percentage">{`${(correctCount / questions.length * 100).toFixed(2)}%`}</div>
             {answerArray.map((answer, index) => {
 
                 let result = null;
@@ -293,35 +281,77 @@ const Quest = () => {
                 switch(question.type) {
                     case QuestionType.fillInBlank:
                         result = <React.Fragment>
-                            <div>{answer.answer}</div>
                             {answer.answer !== question.answer ?
-                                <div>{`Correct Answer: ${question.answer}`}</div>
-                                : null
+                            <>
+                                <div className="quest-grid">
+                                    <div className="incorrect"><i className="fa-solid fa-xmark"></i></div>
+                                    <div>{answer.answer}</div>
+                                </div>
+                                <div><span className="quest-bold">{"Correct Answer: "}</span>{question.answer}</div>
+                            </>
+                                : <div className="quest-flex">
+                                    <div className="correct"><i className="fa-solid fa-check"></i></div>
+                                    <div>{answer.answer}</div>
+                                </div>
                             }
                         </React.Fragment>
                     break;
                     case QuestionType.allThatApply:
-                        result = question.options.map((option) => {
-                            return(
-                                <div key={option.answer}>{option.answer}</div>
-                            );
-                        });
+                        result = <div className="quest-grid">
+                            {question.options.map((option, index) => {
+                                
+                                let check = <div></div>
+                                if(option.answerApplies === answer[`answer${index}Applies`]) {
+                                    check =  <div className="correct"><i className="fa-solid fa-check"></i></div>
+                                }
+                                else {
+                                    check =  <div className="incorrect"><i className="fa-solid fa-xmark"></i></div>
+                                }
+                                return(
+                                    <React.Fragment key={option.answer}>
+                                        {check}
+                                        <div className={answer[`answer${index}Applies`] ? "quest-bold" : ""}>
+                                            {option.answer}
+                                        </div>
+                                    </React.Fragment>
+                                );
+                            })}
+                        </div>
                     break;
                     case QuestionType.multipleChoice:
-                        result = question.options.map((option) => {
-                            return(
-                                <div key={option}>{option}</div>
-                            );
-                        });
+                        result = <div className = "quest-grid">
+                            {question.options.map((option) => {
+                                let check = <div></div>
+                                if(option === answer.answer) {
+                                   if(answer.answer === question.answer) {
+                                       check = <div className="correct"><i className="fa-solid fa-check"></i></div>;
+                                   }
+                                   else {
+                                       check = <div className="incorrect"><i className="fa-solid fa-xmark"></i></div>
+                                   }
+                                }
+                                if(answer.answer !== question.answer && option === question.answer) {
+                                    check = <div className="correct"><i className="fa-solid fa-check"></i></div>;
+                                }
+                                return(
+                                    <React.Fragment key={option}>
+                                        {check}
+                                        <div className={option === answer.answer ? "quest-bold" : ""}>
+                                            {option}
+                                        </div>
+                                    </React.Fragment>
+                                );
+                        })}
+                        </div>
                     break;
                     default:
                     break;
                 }
 
-                return(<React.Fragment key={`answer${index}`}>
-                    <div>{question.question}</div>
+                return(<div className="quest-answer-container" key={`answer${index}`}>
+                    <div className="title">{`Question ${index + 1}: ${question.question}`}</div>
                         {result}
-                    </React.Fragment>
+                    </div>
                 );
             })}
             <ul className="menu-list">
@@ -332,7 +362,7 @@ const Quest = () => {
                      <input className="form-btn" type="button" value="Main Menu" onClick={() => {navigate("/")}}/>
                  </li>
              </ul>
-         </>
+         </div>
         }
         </div>
     );

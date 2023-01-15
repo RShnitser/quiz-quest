@@ -2,7 +2,7 @@ import { Routes, Route, useNavigate } from "react-router-dom";
 import useQuiz from "../../providers/QuizProvider";
 import { QuizContextType } from "../../providers/QuizProvider";
 import MainMenu from "../MainMenu";
-import Quest from "../Quest";
+import Quest from "../Quest/Quest";
 import QuestCreate from "../QuestCreate";
 import QuestSettings from "../QuestSettings";
 import QuestHistory from "../QuestHistory";

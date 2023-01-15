@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useQuiz from "../providers/QuizProvider";
 import { QuizContextType } from "../providers/QuizProvider";
-import InputField from "./InputField";
+import InputField from "./InputField/InputField";
 import { SettingsInfo, Settings } from "../quiz-api/quiz-api";
 
 const INIT_SETTINGS: SettingsInfo = {
