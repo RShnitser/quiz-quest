@@ -1,6 +1,7 @@
 const URL_BASE: string = "http://localhost:3000/";
 const URL_USERS: string = URL_BASE + "users";
 const URL_QUESTIONS: string = URL_BASE + "questions";
+const URL_HISTORY: string = URL_BASE + "history";
 
 export type UserInfo = {
     userName: string,
@@ -115,6 +116,26 @@ type AllThatApplyQuestion = {
 export type Question = FillInBlankQuestion | MultipleChoiceQuestion | AllThatApplyQuestion;
 
 export type Tags = Map<string, boolean>;
+
+type AnswerInfo = {
+    [key : string]: string | boolean;
+}
+
+type HistoryInfo = {
+    userId: number;
+    questionId: number;
+    info: AnswerInfo;
+    date: Date;
+}
+
+type History = {
+    id: number;
+    userId: number;
+    questionId: number;
+    info: AnswerInfo;
+    date: Date;
+}
+
 
 export const loginUserAPI = async (user: UserInfo): Promise<User | undefined> => {
    
@@ -249,4 +270,43 @@ export const getQuestAPI = async (settings: Settings) => {
     return new Promise<Array<Question>>((resolve) => {
         resolve(shuffleArray(result));
     });
+}
+
+export const addHistoryAPI = async (userId : number, questionId : number, answerInfo: AnswerInfo) => {
+
+    const response = await fetch(URL_HISTORY, {
+        method: "POST",
+        body: JSON.stringify({
+            userId: userId,
+            questionId: questionId,
+            info: {...answerInfo},
+            date: Date.now()
+
+        }),
+        headers: {
+        "Content-Type": "application/json",
+        },
+    });
+    if(!response.ok) {
+        throw Error("Could not add question");
+    }
+
+    const addedHistory = await response.json() as Promise<History>;
+    return(addedHistory); 
+}
+
+export const getHistoryAPI = async (userId: number) => {
+
+    const response = await fetch(URL_HISTORY);
+    if(!response.ok) {
+        throw Error("Could not fetch questions");
+    }
+
+    const history = await response.json();
+    
+    const filteredHistory = history.filter((entry: History) => {
+            return entry.userId === userId;
+     }); 
+
+     return filteredHistory as Promise<History>;
 }
