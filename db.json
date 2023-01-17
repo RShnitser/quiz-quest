@@ -6,6 +6,57 @@
       "id": 1
     }
   ],
-  "questions": [],
+  "questions": [
+    {
+      "question": "fill in blank",
+      "type": "Fill in the blank",
+      "answer": "answer",
+      "tags": [
+        "HTML"
+      ],
+      "id": 1
+    },
+    {
+      "question": "all that apply",
+      "type": "All that apply",
+      "options": [
+        {
+          "answer": "answer1",
+          "answerApplies": true
+        },
+        {
+          "answer": "answer2",
+          "answerApplies": true
+        },
+        {
+          "answer": "fake1",
+          "answerApplies": false
+        },
+        {
+          "answer": "fake2",
+          "answerApplies": false
+        }
+      ],
+      "tags": [
+        "CSS"
+      ],
+      "id": 2
+    },
+    {
+      "question": "multiple choice",
+      "type": "Multiple Choice",
+      "answer": "answer",
+      "options": [
+        "answer",
+        "fake1",
+        "fake2",
+        "fake3"
+      ],
+      "tags": [
+        "Javascript"
+      ],
+      "id": 3
+    }
+  ],
   "history": []
 }

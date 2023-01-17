@@ -1,0 +1,39 @@
+.input-label {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-right: 15px;
+}
+
+.input-field {
+    margin: 10px 0;
+    padding: 15px 10px;
+    border-radius: 5px;
+    border: 1px solid var(--black);
+}
+
+.input-horizontal {
+    /* display: grid;
+    grid-template-columns: repeat(2, 1fr); */
+    display: flex;
+    align-items: center;
+}
+
+.input-horizontal label{
+    margin-left: 20px;
+}
+
+.input-vertical {
+    display: flex;
+    flex-direction: column-reverse;
+}
+
+.input-error {
+    color: var(--red);
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+.input-error-bg {
+    border-color: var(--red);
+    background-color: var(--error-bg);
+}

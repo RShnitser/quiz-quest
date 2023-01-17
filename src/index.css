@@ -2,6 +2,11 @@
     --blue: #0e76c4;
     --dark-gray: #666666;
     --black: black;
+    --red: #cc2c53;
+    --green: #228b22;
+    --error-bg: #fdf6f5;
+
+    --font-18: 1.125rem;
 }
 
 *,
