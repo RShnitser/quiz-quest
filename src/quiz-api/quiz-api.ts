@@ -121,7 +121,7 @@ type AnswerInfo = {
     [key : string]: string | boolean;
 }
 
-type HistoryInfo = {
+export type HistoryInfo = {
     userId: number;
     questionId: number;
     info: AnswerInfo;
@@ -134,6 +134,11 @@ type History = {
     questionId: number;
     info: AnswerInfo;
     date: Date;
+}
+
+export type HistoryData = {
+    history: History;
+    question: Question;
 }
 
 
@@ -297,16 +302,41 @@ export const addHistoryAPI = async (userId : number, questionId : number, answer
 
 export const getHistoryAPI = async (userId: number) => {
 
-    const response = await fetch(URL_HISTORY);
-    if(!response.ok) {
-        throw Error("Could not fetch questions");
+   
+
+    const [historyRes, questionRes] = await Promise.all([
+        fetch(URL_HISTORY),
+        fetch(URL_QUESTIONS)
+    ]);
+    if(!historyRes.ok || !questionRes.ok) {
+        throw Error("Could not fetch history");
     }
 
-    const history = await response.json();
-    
-    const filteredHistory = history.filter((entry: History) => {
-            return entry.userId === userId;
-     }); 
+    const [history, questions] = await Promise.all([
+        historyRes.json(),
+        questionRes.json()
+    ]);
 
-     return filteredHistory as Promise<History>;
+
+    
+    // const filteredHistory: HistoryData = history.filter((entry: History) => {
+    //         if(entry.userId === userId) {
+                
+    //         }
+    //  }); 
+
+    const historyData: Array<HistoryData> = [];
+    for(const entry of history) {
+        if(entry.id === userId) {
+            historyData.push({
+                history: entry,
+                question: questions.find((question: Question) => {
+                    return question.id === entry.questionId;
+                })
+            })
+        }
+    }
+
+    return historyData;
+     //return filteredHistory as Promise<HistoryData>;
 }
