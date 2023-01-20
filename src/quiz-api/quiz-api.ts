@@ -117,18 +117,18 @@ export type Question = FillInBlankQuestion | MultipleChoiceQuestion | AllThatApp
 
 export type Tags = Map<string, boolean>;
 
-type AnswerInfo = {
+export type AnswerInfo = {
     [key : string]: string | boolean;
 }
 
-export type HistoryInfo = {
-    userId: number;
-    questionId: number;
-    info: AnswerInfo;
-    date: Date;
-}
+// type HistoryInfo = {
+//     userId: number;
+//     questionId: number;
+//     info: AnswerInfo;
+//     date: Date;
+// }
 
-type History = {
+export type History = {
     id: number;
     userId: number;
     questionId: number;

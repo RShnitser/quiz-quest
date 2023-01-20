@@ -18,7 +18,7 @@ const INIT_ANSWER : Answer = {
 
 const Quest = () => {
 
-    const {getQuest, settings}: QuizContextType = useQuiz();
+    const {user, getQuest, settings, addHistory}: QuizContextType = useQuiz();
     const navigate = useNavigate();
 
     const [questions, setQuestions] = useState<Array<Question>>([]);
@@ -102,7 +102,19 @@ const Quest = () => {
         return(result);
     }
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
+    const handleAddHistory = async () => {
+        try {
+            for(const index in answerArray) {
+                console.log(index);
+                await addHistory(user.id, questions[index].id, answerArray[index]);
+            }
+        }
+        catch(error) {
+            console.error(error);
+        }
+    }
+
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         if(isValidAnswer()) {
@@ -142,6 +154,8 @@ const Quest = () => {
                 newAnswers.push(answer);
                 setAnswerArray(newAnswers);
 
+                await addHistory(user.id, question.id, answer);
+
                 if(questionIndex < questions.length - 1) {
                     const newQuestionIndex = questionIndex + 1;
                  
@@ -164,6 +178,7 @@ const Quest = () => {
                     }
                 }
                 else {
+                   //await handleAddHistory();
                     setQuizComplete(true);
                 }
             }

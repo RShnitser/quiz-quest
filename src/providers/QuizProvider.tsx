@@ -1,5 +1,20 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import { loginUserAPI, addUserAPI, User, UserInfo, Question, addQuestionAPI, Settings, getQuestAPI } from "../quiz-api/quiz-api";
+import { 
+    loginUserAPI, 
+    addUserAPI, 
+    User, 
+    UserInfo, 
+    AnswerInfo, 
+    Question,
+    History,
+    HistoryData,
+    addQuestionAPI, 
+    Settings, 
+    getQuestAPI,
+    addHistoryAPI,
+    getHistoryAPI,
+
+} from "../quiz-api/quiz-api";
 import { QuestionInfo} from "../quiz-api/quiz-api";
 
 type QuizProviderProps = {
@@ -14,6 +29,8 @@ export type QuizContextType = {
     addUser: (user: UserInfo) => Promise<User | undefined>,
     addQuestion: (question: QuestionInfo) => void,
     getQuest: (settings: Settings) => Promise<Array<Question> | undefined>;
+    addHistory: (userId : number, questionId : number, answerInfo: AnswerInfo) => Promise<History | undefined>;
+    getHistory: (userId : number) => Promise<Array<HistoryData> | undefined>;
     setSettings: (settings: Settings) => void,
 }
 
@@ -36,7 +53,9 @@ const QuizContext = createContext<QuizContextType>({
     addUser: () => {return new Promise(() => undefined)},
     addQuestion: () => {},
     getQuest: () => {return new Promise(() => undefined)},
-    setSettings: () => {}
+    setSettings: () => {},
+    addHistory: () => {return new Promise(() => undefined)},
+    getHistory: () => {return new Promise(() => undefined)},
 });
 
 export const QuizProvider = ({children}: QuizProviderProps) => {
@@ -108,6 +127,26 @@ export const QuizProvider = ({children}: QuizProviderProps) => {
             console.error(error);
         }
     }
+
+    const addHistory = async (userId : number, questionId : number, answerInfo: AnswerInfo) => {
+        try {
+            const result = await addHistoryAPI(userId, questionId, answerInfo);
+            return result;
+        }
+        catch(error) {
+            console.error(error);
+        }
+    }
+
+    const getHistory = async (userId : number) => {
+        try {
+            const result = await getHistoryAPI(userId);
+            return result;
+        }
+        catch(error) {
+            console.error(error);
+        }
+    }
     
     return(
         <QuizContext.Provider value={{
@@ -119,6 +158,8 @@ export const QuizProvider = ({children}: QuizProviderProps) => {
             addQuestion,
             getQuest,
             setSettings,
+            addHistory,
+            getHistory
         }}>
             {children}
         </QuizContext.Provider>
