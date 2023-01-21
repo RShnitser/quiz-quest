@@ -5,7 +5,7 @@ import MainMenu from "../MainMenu";
 import Quest from "../Quest/Quest";
 import QuestCreate from "../QuestCreate";
 import QuestSettings from "../QuestSettings";
-import QuestHistory from "../QuestHistory";
+import QuestHistory from "../QuestHistory/QuestHistory";
 import "./QuizApp.css";
 
 export type InputError = {

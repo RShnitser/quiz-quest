@@ -327,7 +327,7 @@ export const getHistoryAPI = async (userId: number) => {
 
     const historyData: Array<HistoryData> = [];
     for(const entry of history) {
-        if(entry.id === userId) {
+        if(entry.userId === userId) {
             historyData.push({
                 history: entry,
                 question: questions.find((question: Question) => {
