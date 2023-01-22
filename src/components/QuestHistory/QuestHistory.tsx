@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import useQuiz from "../../providers/QuizProvider";
 import { QuizContextType } from "../../providers/QuizProvider";
 import { HistoryData } from "../../quiz-api/quiz-api";
+import HistoryCard from "../HistoryCard/HistoryCard";
 
 const QuestHistory = () => {
 
@@ -30,9 +31,21 @@ const QuestHistory = () => {
     const mapHistoryData = () => {
 
         const result = history.map((data, index) => {
-            return(
-                <div key={`history${index}`}>{data.question.question}</div>
-            )
+
+            const answer = {
+                answer: "",
+                ...data.history.info
+            }
+
+            return(<div className="quest-answer-container" key={`answer${index}`}>
+            <div className="title">{data.question.question}</div>
+                {/* {result} */}
+                <HistoryCard
+                    question={data.question}
+                    answer={answer}
+                />
+            </div>
+        );
         });
 
         return result;

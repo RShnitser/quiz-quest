@@ -61,12 +61,25 @@
   "history": [
     {
       "userId": 1,
+      "questionId": 2,
+      "info": {
+        "answer": "",
+        "answer0Applies": false,
+        "answer1Applies": false,
+        "answer2Applies": true,
+        "answer3Applies": true
+      },
+      "date": 1674351237740,
+      "id": 1
+    },
+    {
+      "userId": 1,
       "questionId": 3,
       "info": {
         "answer": "answer"
       },
-      "date": 1674177584139,
-      "id": 1
+      "date": 1674351240370,
+      "id": 2
     },
     {
       "userId": 1,
@@ -74,20 +87,7 @@
       "info": {
         "answer": "answer"
       },
-      "date": 1674177587549,
-      "id": 2
-    },
-    {
-      "userId": 1,
-      "questionId": 2,
-      "info": {
-        "answer": "",
-        "answer0Applies": false,
-        "answer1Applies": true,
-        "answer2Applies": true,
-        "answer3Applies": false
-      },
-      "date": 1674177591798,
+      "date": 1674351243535,
       "id": 3
     }
   ]
