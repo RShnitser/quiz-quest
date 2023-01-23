@@ -236,12 +236,12 @@ const Quest = () => {
                 input = <div className="form-grid">
                     {question.options.map((option, index) => (
                         <InputField
-                            key={option}
-                            label={option}
+                            key={option.answer}
+                            label={option.answer}
                             type="radio"
                             name="answer"
                             error=""
-                            value={option}
+                            value={option.answer}
                             //className="form-btn"
                             onChange={({target: {value}}: React.ChangeEvent<HTMLInputElement>) => {
                                 setAnswer({

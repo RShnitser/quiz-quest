@@ -37,6 +37,7 @@ export enum QuestionType {
     multipleChoice="Multiple Choice",
 }
 
+
 type FillInBlankQuestionInfo = {
     question: string;
     tags: Tags;
@@ -48,11 +49,12 @@ type MultipleChoiceQuestionInfo = {
     question: string;
     tags: Tags;
     type: QuestionType.multipleChoice;
-    answer: string;
+    //answer: string;
+    answer: MultipleChoiceOption;
     // option1: string;
     // option2: string;
     // option3: string;
-    options: Array<string>
+    options: Array<MultipleChoiceOption>
 }
 
 type AllThatApplyQuestionInfo = {
@@ -80,6 +82,11 @@ type FillInBlankQuestion = {
     answer: string;
 }
 
+type MultipleChoiceOption = {
+    id: number;
+    answer: string;
+}
+
 type MultipleChoiceQuestion = {
     readonly id: number,
     question: string;
@@ -89,13 +96,15 @@ type MultipleChoiceQuestion = {
     // option1: string;
     // option2: string;
     // option3: string;
-    options: Array<string>
+    options: Array<MultipleChoiceOption>
 }
 
 type AllThatApplyOption = {
+    id: number;
     answer: string;
     answerApplies: boolean;
 }
+
 
 type AllThatApplyQuestion = {
     readonly id: number,

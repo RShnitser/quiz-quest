@@ -54,7 +54,7 @@ const QuestCreate = () => {
             case QuestionType.multipleChoice:
                 for(let i = 0; i < questionInfo.options.length; i++) {
                     const option = questionInfo.options[i];
-                    if(option.length === 0) {
+                    if(option.answer.length === 0) {
                         newError[`option${i}`] = "Enter an answer";
                     }
                 }
@@ -147,7 +147,7 @@ const QuestCreate = () => {
                         const options = [
                             ...questionInfo.options
                         ]
-                        options[index] = value;
+                        options[index].answer = value;
                         setQuestionInfo({
                             ...questionInfo, 
                             answer: options[0],
@@ -239,12 +239,12 @@ const QuestCreate = () => {
                             case QuestionType.multipleChoice:
                                 const multipleChoiceOptions = [];
                                 for(let index = 0; index < answerCount; index++) {
-                                    multipleChoiceOptions.push("");
+                                    multipleChoiceOptions.push({id: index, answer: ""});
                                 }
                                 setQuestionInfo({
                                     question: questionInfo.question,
                                     type: value,
-                                    answer: "",
+                                    answer: {id: 0, answer: ""},
                                     options: multipleChoiceOptions,
                                     tags: questionInfo.tags,
                                 });
@@ -252,7 +252,7 @@ const QuestCreate = () => {
                             case QuestionType.allThatApply:
                                 const allThatApplyOptions = [];
                                 for(let index = 0; index < answerCount; index++) {
-                                    allThatApplyOptions.push({answer: "", answerApplies: false});
+                                    allThatApplyOptions.push({id: index, answer: "", answerApplies: false});
                                 }
                                 setQuestionInfo({
                                     question: questionInfo.question,
