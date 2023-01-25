@@ -2,16 +2,17 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import useQuiz from "../../providers/QuizProvider";
 import { QuizContextType } from "../../providers/QuizProvider";
-import { Question, QuestionType } from "../../quiz-api/quiz-api";
+import { Question, QuestionType, Answer } from "../../quiz-api/quiz-api";
 import HistoryCard from "../HistoryCard/HistoryCard";
 import InputField from "../InputField/InputField";
 import { InputError } from "../QuizApp/QuizApp";
-import {Answer} from "../QuizApp/QuizApp";
+//import {Answer} from "../QuizApp/QuizApp";
 import "./Quest.css";
 
 
 
 const INIT_ANSWER : Answer = {
+    type: QuestionType.fillInBlank,
     answer: "",
 }
 
@@ -43,16 +44,32 @@ const Quest = () => {
                     const question = result[0];
                     switch(question.type) {
                         case QuestionType.allThatApply:
-                            const newAnswer : Answer = {
-                                answer: ""
+                            const applyAnswer : Answer = {
+                                type: QuestionType.allThatApply,
+                                answer: [],
+                                //answer: ""
                             };
-                            for(let i = 0; i < question.options.length; i++){
-                                newAnswer[`answer${i}Applies`]= false;
+                            //for(let i = 0; i < question.options.length; i++){
+                            for(const option of question.options) {
+                                //newAnswer[`answer${i}Applies`]= false;
+                                applyAnswer.answer.push({id: option.id, applies: false});
                             }
-                            setAnswer(newAnswer);
+                            setAnswer(applyAnswer);
+                        break;
+                        case QuestionType.multipleChoice:
+                            const choiceAnswer: Answer = {
+                                type: QuestionType.multipleChoice,
+                                answer: -1,
+                                order: [],
+                            }
+                            for(const option of question.options) {
+                                //newAnswer[`answer${i}Applies`]= false;
+                                choiceAnswer.order.push(option.id);
+                            }
+                            setAnswer(choiceAnswer);
                         break;
                         default:
-                            setAnswer(INIT_ANSWER);
+                            //setAnswer(INIT_ANSWER);
                         break;
                     }
                 }
@@ -74,9 +91,9 @@ const Quest = () => {
         setError({});
 
         const newError: InputError = {};
-        const question = questions[questionIndex];
+        //const question = questions[questionIndex];
 
-        switch(question.type) {
+        switch(answer.type) {
             case QuestionType.fillInBlank: 
                 if(!answer.answer.length) {
                     newError["answer"] = "Enter an answer";
@@ -84,11 +101,11 @@ const Quest = () => {
                 }
             break;
             case QuestionType.multipleChoice: 
-            if(!answer.answer.length) {
-                //newError["answer"] = "Enter an answer";
-                setPageError("Select an answer")
-                result = false;
-            }
+                if(answer.answer === -1) {
+                    //newError["answer"] = "Enter an answer";
+                    setPageError("Select an answer")
+                    result = false;
+                }
             break;
             default:
             break;
@@ -101,17 +118,17 @@ const Quest = () => {
         return(result);
     }
 
-    const handleAddHistory = async () => {
-        try {
-            for(const index in answerArray) {
-                console.log(index);
-                await addHistory(user.id, questions[index].id, answerArray[index]);
-            }
-        }
-        catch(error) {
-            console.error(error);
-        }
-    }
+    // const handleAddHistory = async () => {
+    //     try {
+    //         for(const index in answerArray) {
+    //             console.log(index);
+    //             await addHistory(user.id, questions[index].id, answerArray[index]);
+    //         }
+    //     }
+    //     catch(error) {
+    //         console.error(error);
+    //     }
+    // }
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -131,7 +148,8 @@ const Quest = () => {
                     case QuestionType.allThatApply:
                         let correct = true;
                         for(let i = 0; i < question.options.length; i++) {
-                            if(question.options[i].answerApplies !== answer[`answer${i}Applies`]) {
+                        //for(const option of question.options) {
+                            if(question.options[i].answerApplies !== (answer.answer as {id: number, applies: boolean}[])[i].applies) {
                                 correct = false;
                                 break;
                             }
@@ -164,10 +182,13 @@ const Quest = () => {
                     switch(question.type) {
                         case QuestionType.allThatApply:
                             const newAnswer : Answer = {
-                                answer: ""
+                                type: QuestionType.allThatApply,
+                                answer: [],
                             };
-                            for(let i = 0; i < question.options.length; i++){
-                                newAnswer[`answer${i}Applies`]= false;
+                            //for(let i = 0; i < question.options.length; i++){
+                            for(const option of question.options) {
+                                //newAnswer[`answer${i}Applies`]= false;
+                                newAnswer.answer.push({id: option.id, applies: false});
                             }
                             setAnswer(newAnswer);
                         break;
@@ -189,6 +210,7 @@ const Quest = () => {
 
     const buildAnswerInput = (question : Question): React.ReactNode => {
         let input = null;
+        //switch(answer.type) {
         switch(question.type) {
             case QuestionType.fillInBlank:
                 
@@ -197,11 +219,13 @@ const Quest = () => {
                      label="Answer:"
                      type="text"
                      name="answer"
-                     value={answer.answer}
+                     value={answer.answer as string}
                      onChange={({target: {value}}: React.ChangeEvent<HTMLInputElement>) => {
                          setAnswer({
+                             type: QuestionType.fillInBlank,
+                             answer: value,
                              //...answer,
-                             answer: value
+                             //answer: value
                          })
                      }}
                      error={error["answer"] || ""}
@@ -216,16 +240,23 @@ const Quest = () => {
                             label={option.answer}
                             type="checkbox"
                             name={option.answer}
-                            checked={answer[`answer${index}Applies`] as boolean || false}
+                            checked={(answer.answer as {id: number, applies: boolean}[])[index].applies}
                             error=""
                             //value={d}
                             onChange={() => {
                                 //console.log(answer.answer1Applies);
-                                setAnswer({
-                                    ...answer,
+
+                                const applyAnswer: Answer = {
+                                    type: QuestionType.allThatApply,
+                                    answer: [...(answer.answer as {id: number, applies: boolean}[])]
+                                }
+                                applyAnswer.answer[index].applies = ! applyAnswer.answer[index].applies;
+                                setAnswer(
+                                    applyAnswer
+                                    //...answer,
                                     //answer1Applies: !answer.answer1Applies,
-                                    [`answer${index}Applies`]: !answer[`answer${index}Applies`]
-                                })
+                                    //[`answer${index}Applies`]: !answer[`answer${index}Applies`]
+                                );
                             }}
                         />
                     ))}
@@ -241,13 +272,24 @@ const Quest = () => {
                             type="radio"
                             name="answer"
                             error=""
-                            value={option.answer}
+                            value={option.id.toString()}
                             //className="form-btn"
                             onChange={({target: {value}}: React.ChangeEvent<HTMLInputElement>) => {
-                                setAnswer({
-                                    //...answer,
-                                    answer: value,
-                                })
+
+                                if(answer.type === QuestionType.multipleChoice) {
+
+                                    const choiceAnswer: Answer = {
+                                        type: QuestionType.multipleChoice,
+                                        answer: parseInt(value),
+                                        order: [...answer.order]
+                                    }
+                                    setAnswer(
+                                        choiceAnswer
+    
+                                        //...answer,
+                                        //answer: value,
+                                    )
+                                }
                             }}
                         />
                     ))}

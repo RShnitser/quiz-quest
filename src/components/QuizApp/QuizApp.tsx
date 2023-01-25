@@ -12,10 +12,10 @@ export type InputError = {
     [key: string]: string
 }
 
-export type Answer = {
-    answer: string;
-    [key: string]: boolean | string;
-}
+// export type Answer = {
+//     answer: string;
+//     [key: string]: boolean | string;
+// }
 
 const QuizApp = () => {
 

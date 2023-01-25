@@ -4,7 +4,7 @@ import {
     addUserAPI, 
     User, 
     UserInfo, 
-    AnswerInfo, 
+    Answer, 
     Question,
     History,
     HistoryData,
@@ -29,7 +29,7 @@ export type QuizContextType = {
     addUser: (user: UserInfo) => Promise<User | undefined>,
     addQuestion: (question: QuestionInfo) => void,
     getQuest: (settings: Settings) => Promise<Array<Question> | undefined>;
-    addHistory: (userId : number, questionId : number, answerInfo: AnswerInfo) => Promise<History | undefined>;
+    addHistory: (userId : number, questionId : number, answer: Answer) => Promise<History | undefined>;
     getHistory: (userId : number) => Promise<Array<HistoryData> | undefined>;
     setSettings: (settings: Settings) => void,
 }
@@ -128,9 +128,9 @@ export const QuizProvider = ({children}: QuizProviderProps) => {
         }
     }
 
-    const addHistory = async (userId : number, questionId : number, answerInfo: AnswerInfo) => {
+    const addHistory = async (userId : number, questionId : number, answer: Answer) => {
         try {
-            const result = await addHistoryAPI(userId, questionId, answerInfo);
+            const result = await addHistoryAPI(userId, questionId, answer);
             return result;
         }
         catch(error) {

@@ -30,34 +30,35 @@ const QuestHistory = () => {
 
     const mapHistoryData = () => {
 
-        const result = history.map((data, index) => {
+        // const result = history.map((data, index) => {
 
-            const answer = {
-                answer: "",
-                ...data.history.info
-            }
+        //     const answer = {
+        //         answer: "",
+        //         ...data.history.info
+        //     }
 
-            return(<div className="quest-answer-container" key={`answer${index}`}>
-            <div className="title">{data.question.question}</div>
-                {/* {result} */}
-                <HistoryCard
-                    question={data.question}
-                    answer={answer}
-                />
-            </div>
-        );
-        });
+        //     return(<div className="quest-answer-container" key={`answer${index}`}>
+        //     <div className="title">{data.question.question}</div>
+        //         {/* {result} */}
+        //         <HistoryCard
+        //             question={data.question}
+        //             answer={answer}
+        //         />
+        //     </div>
+        // );
+        // });
 
-        return result;
+        //return result;
     }
 
     return(
-        <React.Fragment>
-            {history.length ? 
-                mapHistoryData()
-                :<div>No History Available</div>}
-            <input className="form-btn" type="button" value="Main Menu" onClick={() => {navigate("/")}}/>
-        </React.Fragment>
+        // <React.Fragment>
+        //     {history.length ? 
+        //         mapHistoryData()
+        //         :<div>No History Available</div>}
+        //     <input className="form-btn" type="button" value="Main Menu" onClick={() => {navigate("/")}}/>
+        // </React.Fragment>
+        <div></div>
     );
 }
 

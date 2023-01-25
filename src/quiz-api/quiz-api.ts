@@ -126,9 +126,9 @@ export type Question = FillInBlankQuestion | MultipleChoiceQuestion | AllThatApp
 
 export type Tags = Map<string, boolean>;
 
-export type AnswerInfo = {
-    [key : string]: string | boolean;
-}
+// export type AnswerInfo = {
+//     [key : string]: string | boolean;
+// }
 
 // type HistoryInfo = {
 //     userId: number;
@@ -137,11 +137,30 @@ export type AnswerInfo = {
 //     date: Date;
 // }
 
+type FillInBlankAnswer = {
+    type: QuestionType.fillInBlank;
+    answer: string;
+}
+
+type MultipleChoiceAnswer = {
+    type: QuestionType.multipleChoice;
+    answer: number;
+    order: Array<number>;
+}
+
+type AllThatApplyAnswer = {
+    type: QuestionType.allThatApply;
+    answer: Array<{id: number, applies: boolean}>;
+}
+
+export type Answer = FillInBlankAnswer | MultipleChoiceAnswer | AllThatApplyAnswer;
+
+
 export type History = {
     id: number;
     userId: number;
     questionId: number;
-    info: AnswerInfo;
+    //info: AnswerInfo;
     date: Date;
 }
 
@@ -286,7 +305,7 @@ export const getQuestAPI = async (settings: Settings) => {
     });
 }
 
-export const addHistoryAPI = async (userId : number, questionId : number, answerInfo: AnswerInfo) => {
+export const addHistoryAPI = async (userId : number, questionId : number, answerInfo: Answer) => {
 
     const response = await fetch(URL_HISTORY, {
         method: "POST",

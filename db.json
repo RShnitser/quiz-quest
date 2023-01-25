@@ -7,9 +7,129 @@
     }
   ],
   "questions": [
-   
+    {
+      "question": "fill in blank",
+      "type": "Fill in the blank",
+      "answer": "answer",
+      "tags": [
+        "HTML"
+      ],
+      "id": 1
+    },
+    {
+      "question": "multiple choice",
+      "type": "Multiple Choice",
+      "answer": {
+        "id": 0,
+        "answer": "answer"
+      },
+      "options": [
+        {
+          "id": 0,
+          "answer": "answer"
+        },
+        {
+          "id": 1,
+          "answer": "fake1"
+        },
+        {
+          "id": 2,
+          "answer": "fake2"
+        },
+        {
+          "id": 3,
+          "answer": "fake3"
+        }
+      ],
+      "tags": [
+        "CSS"
+      ],
+      "id": 2
+    },
+    {
+      "question": "all that apply",
+      "type": "All that apply",
+      "options": [
+        {
+          "id": 0,
+          "answer": "answer1",
+          "answerApplies": true
+        },
+        {
+          "id": 1,
+          "answer": "answer2",
+          "answerApplies": true
+        },
+        {
+          "id": 2,
+          "answer": "fake1",
+          "answerApplies": false
+        },
+        {
+          "id": 3,
+          "answer": "fake2",
+          "answerApplies": false
+        }
+      ],
+      "tags": [
+        "Javascript"
+      ],
+      "id": 3
+    }
   ],
   "history": [
-    
+    {
+      "userId": 1,
+      "questionId": 2,
+      "info": {
+        "type": "Multiple Choice",
+        "answer": 0,
+        "order": [
+          3,
+          2,
+          1,
+          0
+        ]
+      },
+      "date": 1674609533247,
+      "id": 1
+    },
+    {
+      "userId": 1,
+      "questionId": 3,
+      "info": {
+        "type": "All that apply",
+        "answer": [
+          {
+            "id": 2,
+            "applies": false
+          },
+          {
+            "id": 0,
+            "applies": true
+          },
+          {
+            "id": 3,
+            "applies": false
+          },
+          {
+            "id": 1,
+            "applies": true
+          }
+        ]
+      },
+      "date": 1674609536831,
+      "id": 2
+    },
+    {
+      "userId": 1,
+      "questionId": 1,
+      "info": {
+        "type": "Fill in the blank",
+        "answer": "answer"
+      },
+      "date": 1674609539996,
+      "id": 3
+    }
   ]
 }
