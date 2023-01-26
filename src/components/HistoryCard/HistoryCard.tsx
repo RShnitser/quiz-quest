@@ -37,21 +37,24 @@ const HistoryCard = ({question, answer}: HistoryCardProps) => {
                 result = <div className="quest-grid">
                     {answer.answer.map((option, index) => {
                         
-                        let check = <div></div>
-                        if(question.options[option.id].answerApplies === option.applies) {
-                            check =  <div className="correct"><i className="fa-solid fa-check"></i></div>
+                        const questionOption = question.options.find((element) => (element.id === option.id))
+                        if(questionOption) {
+                            let check = <div></div>
+                            if(questionOption.answerApplies === option.applies) {
+                                check =  <div className="correct"><i className="fa-solid fa-check"></i></div>
+                            }
+                            else {
+                                check =  <div className="incorrect"><i className="fa-solid fa-xmark"></i></div>
+                            }
+                            return(
+                                <React.Fragment key={option.id}>
+                                    {check}
+                                    <div className={option.applies ? "quest-bold" : ""}>
+                                        {questionOption.answer}
+                                    </div>
+                                </React.Fragment>
+                            );
                         }
-                        else {
-                            check =  <div className="incorrect"><i className="fa-solid fa-xmark"></i></div>
-                        }
-                        return(
-                            <React.Fragment key={option.id}>
-                                {check}
-                                <div className={option.applies ? "quest-bold" : ""}>
-                                    {question.options[option.id].answer}
-                                </div>
-                            </React.Fragment>
-                        );
                     })}
                 </div>
             }
@@ -60,27 +63,31 @@ const HistoryCard = ({question, answer}: HistoryCardProps) => {
             if(answer.type === QuestionType.multipleChoice) {
 
                 result = <div className = "quest-grid">
-                    {answer.order.map((index) => {
-                        let check = <div></div>
-                        if(question.options[index].id === answer.answer) {
-                            if(answer.answer === 0) {
+                    {answer.order.map((orderNum) => {
+                      
+                        const questionOption = question.options.find((option) => (option.id === orderNum));
+                        if(questionOption) {
+                            let check = <div></div>
+                            if(questionOption.id === answer.answer) {
+                                if(answer.answer === 0) {
+                                    check = <div className="correct"><i className="fa-solid fa-check"></i></div>;
+                                }
+                                else {
+                                    check = <div className="incorrect"><i className="fa-solid fa-xmark"></i></div>
+                                }
+                            }
+                            if(answer.answer !== 0 && questionOption.id === 0) {
                                 check = <div className="correct"><i className="fa-solid fa-check"></i></div>;
                             }
-                            else {
-                                check = <div className="incorrect"><i className="fa-solid fa-xmark"></i></div>
-                            }
+                            return(
+                                <React.Fragment key={questionOption.answer}>
+                                    {check}
+                                    <div className={questionOption.id === answer.answer ? "quest-bold" : ""}>
+                                        {questionOption.answer}
+                                    </div>
+                                </React.Fragment>
+                            );
                         }
-                        if(answer.answer !== 0 && question.options[index].id === 0) {
-                            check = <div className="correct"><i className="fa-solid fa-check"></i></div>;
-                        }
-                        return(
-                            <React.Fragment key={question.options[index].answer}>
-                                {check}
-                                <div className={question.options[index].id === answer.answer ? "quest-bold" : ""}>
-                                    {question.options[index].answer}
-                                </div>
-                            </React.Fragment>
-                        );
                     })}
                 </div>
             }

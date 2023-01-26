@@ -42,36 +42,37 @@ const Quest = () => {
                     setQuestions(result);
 
                     const question = result[0];
-                    switch(question.type) {
-                        case QuestionType.allThatApply:
-                            const applyAnswer : Answer = {
-                                type: QuestionType.allThatApply,
-                                answer: [],
-                                //answer: ""
-                            };
-                            //for(let i = 0; i < question.options.length; i++){
-                            for(const option of question.options) {
-                                //newAnswer[`answer${i}Applies`]= false;
-                                applyAnswer.answer.push({id: option.id, applies: false});
-                            }
-                            setAnswer(applyAnswer);
-                        break;
-                        case QuestionType.multipleChoice:
-                            const choiceAnswer: Answer = {
-                                type: QuestionType.multipleChoice,
-                                answer: -1,
-                                order: [],
-                            }
-                            for(const option of question.options) {
-                                //newAnswer[`answer${i}Applies`]= false;
-                                choiceAnswer.order.push(option.id);
-                            }
-                            setAnswer(choiceAnswer);
-                        break;
-                        default:
-                            //setAnswer(INIT_ANSWER);
-                        break;
-                    }
+                    resetAnswer(question);
+                    // switch(question.type) {
+                    //     case QuestionType.allThatApply:
+                    //         const applyAnswer : Answer = {
+                    //             type: QuestionType.allThatApply,
+                    //             answer: [],
+                    //             //answer: ""
+                    //         };
+                    //         //for(let i = 0; i < question.options.length; i++){
+                    //         for(const option of question.options) {
+                    //             //newAnswer[`answer${i}Applies`]= false;
+                    //             applyAnswer.answer.push({id: option.id, applies: false});
+                    //         }
+                    //         setAnswer(applyAnswer);
+                    //     break;
+                    //     case QuestionType.multipleChoice:
+                    //         const choiceAnswer: Answer = {
+                    //             type: QuestionType.multipleChoice,
+                    //             answer: -1,
+                    //             order: [],
+                    //         }
+                    //         for(const option of question.options) {
+                    //             //newAnswer[`answer${i}Applies`]= false;
+                    //             choiceAnswer.order.push(option.id);
+                    //         }
+                    //         setAnswer(choiceAnswer);
+                    //     break;
+                    //     default:
+                    //         //setAnswer(INIT_ANSWER);
+                    //     break;
+                    // }
                 }
 
             }
@@ -83,6 +84,46 @@ const Quest = () => {
         getQuizQuestions();
 
     }, [])
+
+    const resetAnswer = (question: Question) => {
+        switch(question.type) {
+            case QuestionType.fillInBlank:
+                const fillAnswer: Answer = {
+                    type: QuestionType.fillInBlank,
+                    answer: ""
+                }
+                setAnswer(fillAnswer);
+            break;
+            case QuestionType.allThatApply:
+                const applyAnswer : Answer = {
+                    type: QuestionType.allThatApply,
+                    answer: [],
+                    //answer: ""
+                };
+                //for(let i = 0; i < question.options.length; i++){
+                for(const option of question.options) {
+                    //newAnswer[`answer${i}Applies`]= false;
+                    applyAnswer.answer.push({id: option.id, applies: false});
+                }
+                setAnswer(applyAnswer);
+            break;
+            case QuestionType.multipleChoice:
+                const choiceAnswer: Answer = {
+                    type: QuestionType.multipleChoice,
+                    answer: -1,
+                    order: [],
+                }
+                for(const option of question.options) {
+                    //newAnswer[`answer${i}Applies`]= false;
+                    choiceAnswer.order.push(option.id);
+                }
+                setAnswer(choiceAnswer);
+            break;
+            default:
+                //setAnswer(INIT_ANSWER);
+            break;
+        }
+    }
 
     const isValidAnswer = ():boolean => {
         let result = true;
@@ -147,11 +188,24 @@ const Quest = () => {
                     break;
                     case QuestionType.allThatApply:
                         let correct = true;
-                        for(let i = 0; i < question.options.length; i++) {
-                        //for(const option of question.options) {
-                            if(question.options[i].answerApplies !== (answer.answer as {id: number, applies: boolean}[])[i].applies) {
-                                correct = false;
-                                break;
+                        // for(let i = 0; i < question.options.length; i++) {
+                        // //for(const option of question.options) {
+                        //     if(question.options[i].answerApplies !== (answer.answer as {id: number, applies: boolean}[])[i].applies) {
+                        //         correct = false;
+                        //         break;
+                        //     }
+                        // }
+                        if(answer.type === QuestionType.allThatApply) {
+
+                            for(const answerIndex in answer.answer) {
+                                if(question.options[answerIndex].answerApplies !== answer.answer[answerIndex].applies) {
+                                    correct = false;
+                                    break;
+                                }
+                                // if(question.options[answerData.id].answerApplies !== answerData.applies) {
+                                //     correct = false;
+                                //     break;
+                                // }
                             }
                         }
                         if(correct) {
@@ -159,8 +213,11 @@ const Quest = () => {
                         }
                     break;
                     case QuestionType.multipleChoice:
-                        if(question.answer === answer.answer) {
-                            setCorrectCount(correctCount + 1)
+                        if(answer.type === QuestionType.multipleChoice) {
+
+                            if(answer.answer === 0) {
+                                setCorrectCount(correctCount + 1)
+                            }
                         }
                     break;
                     default:
@@ -171,7 +228,7 @@ const Quest = () => {
                 newAnswers.push(answer);
                 setAnswerArray(newAnswers);
 
-                await addHistory(user.id, question.id, answer);
+                //await addHistory(user.id, question.id, answer);
 
                 if(questionIndex < questions.length - 1) {
                     const newQuestionIndex = questionIndex + 1;
@@ -179,23 +236,36 @@ const Quest = () => {
                     setQuestionIndex(newQuestionIndex);
 
                     const question = questions[newQuestionIndex];
-                    switch(question.type) {
-                        case QuestionType.allThatApply:
-                            const newAnswer : Answer = {
-                                type: QuestionType.allThatApply,
-                                answer: [],
-                            };
-                            //for(let i = 0; i < question.options.length; i++){
-                            for(const option of question.options) {
-                                //newAnswer[`answer${i}Applies`]= false;
-                                newAnswer.answer.push({id: option.id, applies: false});
-                            }
-                            setAnswer(newAnswer);
-                        break;
-                        default:
-                            setAnswer(INIT_ANSWER);
-                        break;
-                    }
+                    resetAnswer(question);
+                    // switch(question.type) {
+                    //     case QuestionType.allThatApply:
+                    //         const newAnswer : Answer = {
+                    //             type: QuestionType.allThatApply,
+                    //             answer: [],
+                    //         };
+                    //         //for(let i = 0; i < question.options.length; i++){
+                    //         for(const option of question.options) {
+                    //             //newAnswer[`answer${i}Applies`]= false;
+                    //             newAnswer.answer.push({id: option.id, applies: false});
+                    //         }
+                    //         setAnswer(newAnswer);
+                    //     break;
+                    //     case QuestionType.multipleChoice:
+                    //         const choiceAnswer: Answer = {
+                    //             type: QuestionType.multipleChoice,
+                    //             answer: -1,
+                    //             order: [],
+                    //         }
+                    //         for(const option of question.options) {
+                    //             //newAnswer[`answer${i}Applies`]= false;
+                    //             choiceAnswer.order.push(option.id);
+                    //         }
+                    //         setAnswer(choiceAnswer);
+                    //     break;
+                    //     default:
+                    //         setAnswer(INIT_ANSWER);
+                    //     break;
+                    // }
                 }
                 else {
                    //await handleAddHistory();
@@ -246,17 +316,24 @@ const Quest = () => {
                             onChange={() => {
                                 //console.log(answer.answer1Applies);
 
-                                const applyAnswer: Answer = {
-                                    type: QuestionType.allThatApply,
-                                    answer: [...(answer.answer as {id: number, applies: boolean}[])]
+                                // const applyAnswer: Answer = {
+                                //     type: QuestionType.allThatApply,
+                                //     answer: [...(answer.answer as {id: number, applies: boolean}[])]
+                                // }
+                                if(answer.type === QuestionType.allThatApply) {
+
+                                    const applyAnswer: Answer = {
+                                        type: QuestionType.allThatApply,
+                                        answer:[...answer.answer]
+                                    }
+                                    applyAnswer.answer[index].applies = !applyAnswer.answer[index].applies;
+                                    setAnswer(
+                                        applyAnswer
+                                        //...answer,
+                                        //answer1Applies: !answer.answer1Applies,
+                                        //[`answer${index}Applies`]: !answer[`answer${index}Applies`]
+                                    );
                                 }
-                                applyAnswer.answer[index].applies = ! applyAnswer.answer[index].applies;
-                                setAnswer(
-                                    applyAnswer
-                                    //...answer,
-                                    //answer1Applies: !answer.answer1Applies,
-                                    //[`answer${index}Applies`]: !answer[`answer${index}Applies`]
-                                );
                             }}
                         />
                     ))}

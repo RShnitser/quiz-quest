@@ -78,58 +78,6 @@
     }
   ],
   "history": [
-    {
-      "userId": 1,
-      "questionId": 2,
-      "info": {
-        "type": "Multiple Choice",
-        "answer": 0,
-        "order": [
-          3,
-          2,
-          1,
-          0
-        ]
-      },
-      "date": 1674609533247,
-      "id": 1
-    },
-    {
-      "userId": 1,
-      "questionId": 3,
-      "info": {
-        "type": "All that apply",
-        "answer": [
-          {
-            "id": 2,
-            "applies": false
-          },
-          {
-            "id": 0,
-            "applies": true
-          },
-          {
-            "id": 3,
-            "applies": false
-          },
-          {
-            "id": 1,
-            "applies": true
-          }
-        ]
-      },
-      "date": 1674609536831,
-      "id": 2
-    },
-    {
-      "userId": 1,
-      "questionId": 1,
-      "info": {
-        "type": "Fill in the blank",
-        "answer": "answer"
-      },
-      "date": 1674609539996,
-      "id": 3
-    }
+    
   ]
 }
