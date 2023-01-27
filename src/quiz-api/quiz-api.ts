@@ -160,7 +160,7 @@ export type History = {
     id: number;
     userId: number;
     questionId: number;
-    //info: AnswerInfo;
+    answer: Answer;
     date: Date;
 }
 
@@ -313,7 +313,7 @@ export const addHistoryAPI = async (userId : number, questionId : number, answer
         body: JSON.stringify({
             userId: userId,
             questionId: questionId,
-            info: {...answerInfo},
+            answer: {...answerInfo},
             date: Date.now()
 
         }),
@@ -338,7 +338,7 @@ export const getHistoryAPI = async (userId: number) => {
         fetch(URL_QUESTIONS)
     ]);
     if(!historyRes.ok || !questionRes.ok) {
-        throw Error("Could not fetch history");
+         throw Error("Could not fetch history");
     }
 
     const [history, questions] = await Promise.all([
@@ -366,6 +366,6 @@ export const getHistoryAPI = async (userId: number) => {
         }
     }
 
-    return historyData;
+    return historyData.sort((a, b) => (new Date(b.history.date).getTime() - new Date(a.history.date).getTime()));
      //return filteredHistory as Promise<HistoryData>;
 }
