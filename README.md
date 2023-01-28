@@ -1,4 +1,4 @@
-quiz-quest
+# quiz-quest
 
 npn run serve - launches json server
 npm run dev - launches application, will load in browser automatically
