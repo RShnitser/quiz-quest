@@ -1,21 +1,16 @@
 import { Routes, Route, useNavigate } from "react-router-dom";
 import useQuiz from "../../providers/QuizProvider";
 import { QuizContextType } from "../../providers/QuizProvider";
-import MainMenu from "../MainMenu";
+import MainMenu from "../MainMenu/MainMenu";
 import Quest from "../Quest/Quest";
-import QuestCreate from "../QuestCreate";
-import QuestSettings from "../QuestSettings";
+import QuestCreate from "../QuestCreate/QuestCreate";
+import QuestSettings from "../QuestSettings/QuestSettings";
 import QuestHistory from "../QuestHistory/QuestHistory";
 import "./QuizApp.css";
 
 export type InputError = {
   [key: string]: string;
 };
-
-// export type Answer = {
-//     answer: string;
-//     [key: string]: boolean | string;
-// }
 
 const QuizApp = () => {
   const { logoutUser }: QuizContextType = useQuiz();

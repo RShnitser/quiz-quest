@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import useQuiz from "../providers/QuizProvider";
-import { QuizContextType } from "../providers/QuizProvider";
-import { QuestionType, QuestionInfo } from "../quiz-api/quiz-api";
-import InputField from "./InputField/InputField";
-import { InputError } from "./QuizApp/QuizApp";
+import useQuiz from "../../providers/QuizProvider";
+import { QuizContextType } from "../../providers/QuizProvider";
+import { QuestionType, QuestionInfo } from "../../quiz-api/quiz-api";
+import InputField from "../InputField/InputField";
+import { InputError } from "../QuizApp/QuizApp";
 
 const INIT_QUESTION: QuestionInfo = {
   question: "",

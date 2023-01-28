@@ -31,7 +31,6 @@ const QuestHistory = () => {
       return (
         <div className="quest-answer-container" key={`answer${index}`}>
           <div className="title">{data.question.question}</div>
-          {/* {result} */}
           <HistoryCard
             question={data.question}
             answer={data.history.answer}
@@ -50,11 +49,7 @@ const QuestHistory = () => {
       <div>
         {history.length ? mapHistoryData() : <div>No History Available</div>}
       </div>
-      {/* <input className="form-btn" type="button" value="Main Menu" onClick={() => {navigate("/")}}/> */}
       <ul className="menu-list">
-        {/* <li>
-                     <input className="form-btn" type="submit" value="Submit Answer"/> 
-                 </li> */}
         <li>
           <input
             className="form-btn"

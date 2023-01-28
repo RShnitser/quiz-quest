@@ -16,7 +16,8 @@ const HistoryCard = ({ question, answer, date }: HistoryCardProps) => {
       if (answer.type === QuestionType.fillInBlank) {
         result = (
           <React.Fragment>
-            {answer.answer !== question.answer ? (
+            {answer.answer.toLocaleLowerCase() !==
+            question.answer.toLocaleLowerCase() ? (
               <>
                 <div className="quest-grid">
                   <div className="incorrect">

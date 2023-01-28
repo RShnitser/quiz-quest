@@ -24,13 +24,6 @@ export type SettingsInfo = {
     tags: Tags,
 }
 
-
-// export type QuestionInfo = {
-//     question: string;
-//     answer: Answer,
-//     tags: Tags;
-// }
-
 export enum QuestionType {
     fillInBlank= "Fill in the blank",
     allThatApply="All that apply",
@@ -49,11 +42,7 @@ type MultipleChoiceQuestionInfo = {
     question: string;
     tags: Tags;
     type: QuestionType.multipleChoice;
-    //answer: string;
     answer: MultipleChoiceOption;
-    // option1: string;
-    // option2: string;
-    // option3: string;
     options: Array<MultipleChoiceOption>
 }
 
@@ -62,14 +51,6 @@ type AllThatApplyQuestionInfo = {
     tags: Tags;
     type: QuestionType.allThatApply;
     options: Array<AllThatApplyOption>
-    // answer1: string;
-    // answer1Applies: boolean;
-    // answer2: string;
-    // answer2Applies: boolean;
-    // answer3: string;
-    // answer3Applies: boolean;
-    // answer4: string;
-    // answer4Applies: boolean;
 }
 
 export type QuestionInfo = FillInBlankQuestionInfo | MultipleChoiceQuestionInfo | AllThatApplyQuestionInfo;
@@ -93,9 +74,6 @@ type MultipleChoiceQuestion = {
     tags: Array<string>;
     type: QuestionType.multipleChoice;
     answer: string;
-    // option1: string;
-    // option2: string;
-    // option3: string;
     options: Array<MultipleChoiceOption>
 }
 
@@ -112,30 +90,11 @@ type AllThatApplyQuestion = {
     tags: Array<string>;
     type: QuestionType.allThatApply;
     options: Array<AllThatApplyOption>
-    // answer1: string;
-    // answer1Applies: boolean;
-    // answer2: string;
-    // answer2Applies: boolean;
-    // answer3: string;
-    // answer3Applies: boolean;
-    // answer4: string;
-    // answer4Applies: boolean;
 }
 
 export type Question = FillInBlankQuestion | MultipleChoiceQuestion | AllThatApplyQuestion;
 
 export type Tags = Map<string, boolean>;
-
-// export type AnswerInfo = {
-//     [key : string]: string | boolean;
-// }
-
-// type HistoryInfo = {
-//     userId: number;
-//     questionId: number;
-//     info: AnswerInfo;
-//     date: Date;
-// }
 
 type FillInBlankAnswer = {
     type: QuestionType.fillInBlank;
@@ -182,12 +141,8 @@ export const loginUserAPI = async (user: UserInfo): Promise<User | undefined> =>
             return(userInList);
         }
     });
-    // if(!result) {
-    //     throw Error("Invalid Username or Password");
-    // }
-    // else {
+  
     return(result);
-    //}
 }
 
 export const addUserAPI = async (newUser: UserInfo): Promise<User | undefined> => {
@@ -198,13 +153,12 @@ export const addUserAPI = async (newUser: UserInfo): Promise<User | undefined> =
     }
     const users = await userResponse.json() as Promise<User[]>;
     const userExists = (await users).find((userInList) => {
-        if(userInList.userName === userInList.userName) {
+        if(userInList.userName === newUser.userName) {
             return(userInList);
         }
     });
 
     if(userExists) {
-        //throw Error("User with this Username already exists");
         return undefined;
     }
   
@@ -300,7 +254,6 @@ export const getQuestAPI = async (settings: Settings) => {
         }
     }
 
-    //return result as Promise<Array<Question>>;
     return new Promise<Array<Question>>((resolve) => {
         resolve(shuffleArray(result));
     });
@@ -331,8 +284,6 @@ export const addHistoryAPI = async (userId : number, questionId : number, answer
 
 export const getHistoryAPI = async (userId: number) => {
 
-   
-
     const [historyRes, questionRes] = await Promise.all([
         fetch(URL_HISTORY),
         fetch(URL_QUESTIONS)
@@ -345,14 +296,6 @@ export const getHistoryAPI = async (userId: number) => {
         historyRes.json(),
         questionRes.json()
     ]);
-
-
-    
-    // const filteredHistory: HistoryData = history.filter((entry: History) => {
-    //         if(entry.userId === userId) {
-                
-    //         }
-    //  }); 
 
     const historyData: Array<HistoryData> = [];
     for(const entry of history) {
@@ -367,5 +310,4 @@ export const getHistoryAPI = async (userId: number) => {
     }
 
     return historyData.sort((a, b) => (new Date(b.history.date).getTime() - new Date(a.history.date).getTime()));
-     //return filteredHistory as Promise<HistoryData>;
 }
