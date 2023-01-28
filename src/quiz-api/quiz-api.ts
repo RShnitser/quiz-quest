@@ -1,6 +1,7 @@
 const URL_BASE: string = "http://localhost:3000/";
 const URL_USERS: string = URL_BASE + "users";
 const URL_QUESTIONS: string = URL_BASE + "questions";
+const URL_HISTORY: string = URL_BASE + "history";
 
 export type UserInfo = {
     userName: string,
@@ -23,18 +24,12 @@ export type SettingsInfo = {
     tags: Tags,
 }
 
-
-// export type QuestionInfo = {
-//     question: string;
-//     answer: Answer,
-//     tags: Tags;
-// }
-
 export enum QuestionType {
     fillInBlank= "Fill in the blank",
     allThatApply="All that apply",
     multipleChoice="Multiple Choice",
 }
+
 
 type FillInBlankQuestionInfo = {
     question: string;
@@ -47,11 +42,8 @@ type MultipleChoiceQuestionInfo = {
     question: string;
     tags: Tags;
     type: QuestionType.multipleChoice;
-    answer: string;
-    // option1: string;
-    // option2: string;
-    // option3: string;
-    options: Array<string>
+    answer: MultipleChoiceOption;
+    options: Array<MultipleChoiceOption>
 }
 
 type AllThatApplyQuestionInfo = {
@@ -59,14 +51,6 @@ type AllThatApplyQuestionInfo = {
     tags: Tags;
     type: QuestionType.allThatApply;
     options: Array<AllThatApplyOption>
-    // answer1: string;
-    // answer1Applies: boolean;
-    // answer2: string;
-    // answer2Applies: boolean;
-    // answer3: string;
-    // answer3Applies: boolean;
-    // answer4: string;
-    // answer4Applies: boolean;
 }
 
 export type QuestionInfo = FillInBlankQuestionInfo | MultipleChoiceQuestionInfo | AllThatApplyQuestionInfo;
@@ -79,22 +63,26 @@ type FillInBlankQuestion = {
     answer: string;
 }
 
+type MultipleChoiceOption = {
+    id: number;
+    answer: string;
+}
+
 type MultipleChoiceQuestion = {
     readonly id: number,
     question: string;
     tags: Array<string>;
     type: QuestionType.multipleChoice;
     answer: string;
-    // option1: string;
-    // option2: string;
-    // option3: string;
-    options: Array<string>
+    options: Array<MultipleChoiceOption>
 }
 
 type AllThatApplyOption = {
+    id: number;
     answer: string;
     answerApplies: boolean;
 }
+
 
 type AllThatApplyQuestion = {
     readonly id: number,
@@ -102,19 +90,44 @@ type AllThatApplyQuestion = {
     tags: Array<string>;
     type: QuestionType.allThatApply;
     options: Array<AllThatApplyOption>
-    // answer1: string;
-    // answer1Applies: boolean;
-    // answer2: string;
-    // answer2Applies: boolean;
-    // answer3: string;
-    // answer3Applies: boolean;
-    // answer4: string;
-    // answer4Applies: boolean;
 }
 
 export type Question = FillInBlankQuestion | MultipleChoiceQuestion | AllThatApplyQuestion;
 
 export type Tags = Map<string, boolean>;
+
+type FillInBlankAnswer = {
+    type: QuestionType.fillInBlank;
+    answer: string;
+}
+
+type MultipleChoiceAnswer = {
+    type: QuestionType.multipleChoice;
+    answer: number;
+    order: Array<number>;
+}
+
+type AllThatApplyAnswer = {
+    type: QuestionType.allThatApply;
+    answer: Array<{id: number, applies: boolean}>;
+}
+
+export type Answer = FillInBlankAnswer | MultipleChoiceAnswer | AllThatApplyAnswer;
+
+
+export type History = {
+    id: number;
+    userId: number;
+    questionId: number;
+    answer: Answer;
+    date: Date;
+}
+
+export type HistoryData = {
+    history: History;
+    question: Question;
+}
+
 
 export const loginUserAPI = async (user: UserInfo): Promise<User | undefined> => {
    
@@ -128,12 +141,8 @@ export const loginUserAPI = async (user: UserInfo): Promise<User | undefined> =>
             return(userInList);
         }
     });
-    // if(!result) {
-    //     throw Error("Invalid Username or Password");
-    // }
-    // else {
+  
     return(result);
-    //}
 }
 
 export const addUserAPI = async (newUser: UserInfo): Promise<User | undefined> => {
@@ -144,13 +153,12 @@ export const addUserAPI = async (newUser: UserInfo): Promise<User | undefined> =
     }
     const users = await userResponse.json() as Promise<User[]>;
     const userExists = (await users).find((userInList) => {
-        if(userInList.userName === userInList.userName) {
+        if(userInList.userName === newUser.userName) {
             return(userInList);
         }
     });
 
     if(userExists) {
-        //throw Error("User with this Username already exists");
         return undefined;
     }
   
@@ -245,8 +253,61 @@ export const getQuestAPI = async (settings: Settings) => {
             shuffleArray(question.options);
         }
     }
-    //return result as Promise<Array<Question>>;
+
     return new Promise<Array<Question>>((resolve) => {
         resolve(shuffleArray(result));
     });
+}
+
+export const addHistoryAPI = async (userId : number, questionId : number, answerInfo: Answer) => {
+
+    const response = await fetch(URL_HISTORY, {
+        method: "POST",
+        body: JSON.stringify({
+            userId: userId,
+            questionId: questionId,
+            answer: {...answerInfo},
+            date: Date.now()
+
+        }),
+        headers: {
+        "Content-Type": "application/json",
+        },
+    });
+    if(!response.ok) {
+        throw Error("Could not add question");
+    }
+
+    const addedHistory = await response.json() as Promise<History>;
+    return(addedHistory); 
+}
+
+export const getHistoryAPI = async (userId: number) => {
+
+    const [historyRes, questionRes] = await Promise.all([
+        fetch(URL_HISTORY),
+        fetch(URL_QUESTIONS)
+    ]);
+    if(!historyRes.ok || !questionRes.ok) {
+         throw Error("Could not fetch history");
+    }
+
+    const [history, questions] = await Promise.all([
+        historyRes.json(),
+        questionRes.json()
+    ]);
+
+    const historyData: Array<HistoryData> = [];
+    for(const entry of history) {
+        if(entry.userId === userId) {
+            historyData.push({
+                history: entry,
+                question: questions.find((question: Question) => {
+                    return question.id === entry.questionId;
+                })
+            })
+        }
+    }
+
+    return historyData.sort((a, b) => (new Date(b.history.date).getTime() - new Date(a.history.date).getTime()));
 }
