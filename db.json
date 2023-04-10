@@ -95,7 +95,7 @@
       "type": "Multiple Choice",
       "answer": {
         "id": 0,
-        "answer": "iseEffect"
+        "answer": "useEffect"
       },
       "options": [
         {

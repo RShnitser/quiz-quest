@@ -1,8 +1,8 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 import {
   loginUserAPI,
   addUserAPI,
-  User,
+  UserResponse,
   UserInfo,
   Answer,
   Question,
@@ -16,16 +16,16 @@ import {
 } from "../quiz-api/quiz-api";
 import { QuestionInfo } from "../quiz-api/quiz-api";
 
-type QuizProviderProps = {
-  children: React.ReactNode;
-};
+// type QuizProviderProps = {
+//   children: React.ReactNode;
+// };
 
 export type QuizContextType = {
-  user: User;
+  user: UserResponse;
   settings: Settings;
-  loginUser: (user: UserInfo) => Promise<User | undefined>;
+  loginUser: (user: UserInfo) => Promise<UserResponse | undefined>;
   logoutUser: () => void;
-  addUser: (user: UserInfo) => Promise<User | undefined>;
+  addUser: (user: UserInfo) => Promise<UserResponse | undefined>;
   addQuestion: (question: QuestionInfo) => void;
   getQuest: (settings: Settings) => Promise<Array<Question> | undefined>;
   addHistory: (
@@ -37,10 +37,14 @@ export type QuizContextType = {
   setSettings: (settings: Settings) => void;
 };
 
-const INIT_USER: User = {
-  id: -1,
-  userName: "",
-  password: "",
+const INIT_USER: UserResponse = {
+  //id: -1,
+  userInfo: {
+    email: "",
+  },
+  //userName: "",
+  //password: "",
+  token: "",
 };
 
 const INIT_SETTINGS: Settings = {
@@ -49,30 +53,30 @@ const INIT_SETTINGS: Settings = {
 };
 
 const QuizContext = createContext<QuizContextType>({
-  user: INIT_USER,
-  settings: INIT_SETTINGS,
-  loginUser: () => {
-    return new Promise(() => undefined);
-  },
-  logoutUser: () => {},
-  addUser: () => {
-    return new Promise(() => undefined);
-  },
-  addQuestion: () => {},
-  getQuest: () => {
-    return new Promise(() => undefined);
-  },
-  setSettings: () => {},
-  addHistory: () => {
-    return new Promise(() => undefined);
-  },
-  getHistory: () => {
-    return new Promise(() => undefined);
-  },
-});
+  // user: INIT_USER,
+  // settings: INIT_SETTINGS,
+  // loginUser: () => {
+  //   return new Promise(() => undefined);
+  // },
+  // logoutUser: () => {},
+  // addUser: () => {
+  //   return new Promise(() => undefined);
+  // },
+  // addQuestion: () => {},
+  // getQuest: () => {
+  //   return new Promise(() => undefined);
+  // },
+  // setSettings: () => {},
+  // addHistory: () => {
+  //   return new Promise(() => undefined);
+  // },
+  // getHistory: () => {
+  //   return new Promise(() => undefined);
+  // },
+} as QuizContextType);
 
-export const QuizProvider = ({ children }: QuizProviderProps) => {
-  const [user, setUser] = useState<User>(INIT_USER);
+export const QuizProvider = ({ children }: { children: React.ReactPortal }) => {
+  const [user, setUser] = useState<UserResponse>(INIT_USER);
   const [settings, setSettings] = useState<Settings>(INIT_SETTINGS);
 
   useEffect(() => {
