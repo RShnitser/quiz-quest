@@ -34,11 +34,28 @@ export enum QuestionType {
   multipleChoice = "Multiple Choice",
 }
 
+type AnswerInfo = {
+  answer?: string;
+  answerApplies?: boolean;
+};
+
+type UserAnswer = {
+  answerId: number;
+  answer?: string;
+  answerApplies?: boolean;
+  order: number;
+};
+
+type HistoryInfo = {
+  questionId: number;
+  userAnswer: UserAnswer[];
+};
+
 export type QuestionInfo = {
   question: string;
   type: QuestionType;
   tags: string[];
-  options: { answer?: string; answerApplies?: boolean }[];
+  options: AnswerInfo[];
 };
 // type FillInBlankQuestionInfo = {
 //   question: string;
@@ -67,46 +84,68 @@ export type QuestionInfo = {
 //   | MultipleChoiceQuestionInfo
 //   | AllThatApplyQuestionInfo;
 
-type FillInBlankQuestion = {
-  readonly id: number;
-  question: string;
-  tags: Array<string>;
-  type: QuestionType.fillInBlank;
-  answer: string;
-};
+// type FillInBlankQuestion = {
+//   readonly id: number;
+//   question: string;
+//   tags: Array<string>;
+//   type: QuestionType.fillInBlank;
+//   answer: string;
+// };
 
-type MultipleChoiceOption = {
+// type MultipleChoiceOption = {
+//   id: number;
+//   answer: string;
+// };
+
+// type MultipleChoiceQuestion = {
+//   readonly id: number;
+//   question: string;
+//   tags: Array<string>;
+//   type: QuestionType.multipleChoice;
+//   answer: string;
+//   options: Array<MultipleChoiceOption>;
+// };
+
+// type AllThatApplyOption = {
+//   id: number;
+//   answer: string;
+//   answerApplies: boolean;
+// };
+
+// type AllThatApplyQuestion = {
+//   readonly id: number;
+//   question: string;
+//   tags: Array<string>;
+//   type: QuestionType.allThatApply;
+//   options: Array<AllThatApplyOption>;
+// };
+
+// export type Question =
+//   | FillInBlankQuestion
+//   | MultipleChoiceQuestion
+//   | AllThatApplyQuestion;
+
+type QuestionResponse = {
   id: number;
-  answer: string;
-};
-
-type MultipleChoiceQuestion = {
-  readonly id: number;
   question: string;
-  tags: Array<string>;
-  type: QuestionType.multipleChoice;
-  answer: string;
-  options: Array<MultipleChoiceOption>;
+  type: string;
+  userId: number;
 };
 
-type AllThatApplyOption = {
+type HistoryResponse = {
   id: number;
-  answer: string;
-  answerApplies: boolean;
+  userId: number;
+  questionId: number;
+  createdDate: Date;
 };
 
-type AllThatApplyQuestion = {
-  readonly id: number;
-  question: string;
-  tags: Array<string>;
-  type: QuestionType.allThatApply;
-  options: Array<AllThatApplyOption>;
+type UserHistory = {
+  question: QuestionResponse;
+  answers: {
+    userAnswer: UserAnswer;
+    answer: AnswerInfo;
+  }[];
 };
-
-export type Question =
-  | FillInBlankQuestion
-  | MultipleChoiceQuestion
-  | AllThatApplyQuestion;
 
 export type Tags = Map<string, boolean>;
 
@@ -200,14 +239,15 @@ export const addUserAPI = async (
     throw Error("Could not add user");
   }
 
-  const addedUser = (await response.json()) as Promise<UserResponse>;
+  //const addedUser = (await response.json()) as Promise<UserResponse>;
+  const addedUser = await response.json();
   return addedUser;
 };
 
 export const addQuestionAPI = async (
   newQuestion: QuestionInfo,
   token: string
-) => {
+): Promise<QuestionResponse> => {
   const response = await fetch(URL_QUESTIONS, {
     method: "POST",
     // body: JSON.stringify({
@@ -226,7 +266,8 @@ export const addQuestionAPI = async (
     throw Error("Could not add question");
   }
 
-  const addedQuestion = (await response.json()) as Promise<Question>;
+  //const addedQuestion = (await response.json()) as Promise<Question>;
+  const addedQuestion = await response.json();
   return addedQuestion;
 };
 
@@ -241,13 +282,20 @@ export const addQuestionAPI = async (
 //   return array;
 // };
 
-export const getQuestAPI = async (settings: Settings) => {
-  const response = await fetch(URL_QUIZ);
+export const getQuestAPI = async (settings: Settings, token: string) => {
+  const response = await fetch(URL_QUIZ, {
+    method: "POST",
+    body: JSON.stringify(settings),
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
   if (!response.ok) {
     throw Error("Could not fetch questions");
   }
 
-  // const questions = await response.json();
+  const questions = await response.json();
 
   // const filteredQuestions = settings.tags.length
   //   ? questions.filter((question: Question) => {
@@ -289,58 +337,76 @@ export const getQuestAPI = async (settings: Settings) => {
 };
 
 export const addHistoryAPI = async (
-  userId: number,
-  questionId: number,
-  answerInfo: Answer
-) => {
+  history: HistoryInfo,
+  token: string
+  // userId: number,
+  // questionId: number,
+  // answerInfo: Answer
+): Promise<HistoryResponse> => {
   const response = await fetch(URL_HISTORY, {
     method: "POST",
-    body: JSON.stringify({
-      userId: userId,
-      questionId: questionId,
-      answer: { ...answerInfo },
-      date: Date.now(),
-    }),
+    // body: JSON.stringify({
+    //   userId: userId,
+    //   questionId: questionId,
+    //   answer: { ...answerInfo },
+    //   date: Date.now(),
+    body: JSON.stringify(history),
     headers: {
+      Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
     },
   });
+
   if (!response.ok) {
     throw Error("Could not add question");
   }
 
-  const addedHistory = (await response.json()) as Promise<History>;
+  const addedHistory = await response.json();
   return addedHistory;
 };
 
-export const getHistoryAPI = async (userId: number) => {
-  const [historyRes, questionRes] = await Promise.all([
-    fetch(URL_HISTORY),
-    fetch(URL_QUESTIONS),
-  ]);
-  if (!historyRes.ok || !questionRes.ok) {
-    throw Error("Could not fetch history");
+export const getHistoryAPI = async (token: string): Promise<UserHistory[]> => {
+  const response = await fetch(URL_HISTORY, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    throw Error("Could not add question");
   }
 
-  const [history, questions] = await Promise.all([
-    historyRes.json(),
-    questionRes.json(),
-  ]);
+  const history = await response.json();
+  return history;
+  // const [historyRes, questionRes] = await Promise.all([
+  //   fetch(URL_HISTORY),
+  //   fetch(URL_QUESTIONS),
+  // ]);
+  // if (!historyRes.ok || !questionRes.ok) {
+  //   throw Error("Could not fetch history");
+  // }
 
-  const historyData: Array<HistoryData> = [];
-  for (const entry of history) {
-    if (entry.userId === userId) {
-      historyData.push({
-        history: entry,
-        question: questions.find((question: Question) => {
-          return question.id === entry.questionId;
-        }),
-      });
-    }
-  }
+  // const [history, questions] = await Promise.all([
+  //   historyRes.json(),
+  //   questionRes.json(),
+  // ]);
 
-  return historyData.sort(
-    (a, b) =>
-      new Date(b.history.date).getTime() - new Date(a.history.date).getTime()
-  );
+  // const historyData: Array<HistoryData> = [];
+  // for (const entry of history) {
+  //   if (entry.userId === userId) {
+  //     historyData.push({
+  //       history: entry,
+  //       question: questions.find((question: Question) => {
+  //         return question.id === entry.questionId;
+  //       }),
+  //     });
+  //   }
+  // }
+
+  // return historyData.sort(
+  //   (a, b) =>
+  //     new Date(b.history.date).getTime() - new Date(a.history.date).getTime()
+  // );
 };
