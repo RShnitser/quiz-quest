@@ -7,14 +7,15 @@ import {
   Answer,
   Question,
   History,
-  HistoryData,
+  HistoryInfo,
   addQuestionAPI,
-  Settings,
+  SettingsInfo,
   getQuestAPI,
   addHistoryAPI,
   getHistoryAPI,
 } from "../quiz-api/quiz-api";
 import { QuestionInfo } from "../quiz-api/quiz-api";
+import useAuth from "./AuthProvider";
 
 // type QuizProviderProps = {
 //   children: React.ReactNode;
@@ -22,32 +23,19 @@ import { QuestionInfo } from "../quiz-api/quiz-api";
 
 export type QuizContextType = {
   user: UserResponse;
-  settings: Settings;
-  loginUser: (user: UserInfo) => Promise<UserResponse | undefined>;
-  logoutUser: () => void;
-  addUser: (user: UserInfo) => Promise<UserResponse | undefined>;
+  settings: SettingsInfo;
   addQuestion: (question: QuestionInfo) => void;
-  getQuest: (settings: Settings) => Promise<Array<Question> | undefined>;
+  getQuest: (settings: SettingsInfo) => Promise<Array<Question> | undefined>;
   addHistory: (
     userId: number,
     questionId: number,
     answer: Answer
   ) => Promise<History | undefined>;
   getHistory: (userId: number) => Promise<Array<HistoryData> | undefined>;
-  setSettings: (settings: Settings) => void;
+  setSettings: (settings: SettingsInfo) => void;
 };
 
-const INIT_USER: UserResponse = {
-  //id: -1,
-  userInfo: {
-    email: "",
-  },
-  //userName: "",
-  //password: "",
-  token: "",
-};
-
-const INIT_SETTINGS: Settings = {
+const INIT_SETTINGS: SettingsInfo = {
   count: 5,
   tags: [],
 };
@@ -76,72 +64,30 @@ const QuizContext = createContext<QuizContextType>({
 } as QuizContextType);
 
 export const QuizProvider = ({ children }: { children: React.ReactPortal }) => {
-  const [user, setUser] = useState<UserResponse>(INIT_USER);
-  const [settings, setSettings] = useState<Settings>(INIT_SETTINGS);
-
-  useEffect(() => {
-    const loggedInUser = localStorage.getItem("user");
-    if (loggedInUser) {
-      setUser(JSON.parse(loggedInUser));
-    }
-  }, []);
-
-  const addUser = async (user: UserInfo) => {
-    try {
-      const result = await addUserAPI(user);
-      if (result) {
-        localStorage.setItem("user", JSON.stringify(result));
-        setUser(result);
-      }
-      return result;
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const loginUser = async (user: UserInfo) => {
-    try {
-      const result = await loginUserAPI(user);
-      if (result) {
-        localStorage.setItem("user", JSON.stringify(result));
-        setUser(result);
-      }
-      return result;
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const logoutUser = () => {
-    setUser(INIT_USER);
-    localStorage.removeItem("user");
-  };
+  const { user, loginUser, logoutUser, addUser } = useAuth();
+  const [settings, setSettings] = useState<SettingsInfo>(INIT_SETTINGS);
 
   const addQuestion = async (question: QuestionInfo) => {
     try {
-      const result = await addQuestionAPI(question);
+      const result = await addQuestionAPI(question, user.token);
       return result;
     } catch (error) {
       console.error(error);
     }
   };
 
-  const getQuest = async (settings: Settings) => {
+  const getQuest = async (settings: SettingsInfo) => {
     try {
-      const result = await getQuestAPI(settings);
+      const result = await getQuestAPI(settings, user.token);
       return result;
     } catch (error) {
       console.error(error);
     }
   };
 
-  const addHistory = async (
-    userId: number,
-    questionId: number,
-    answer: Answer
-  ) => {
+  const addHistory = async (history: HistoryInfo) => {
     try {
-      const result = await addHistoryAPI(userId, questionId, answer);
+      const result = await addHistoryAPI(history, user.token);
       return result;
     } catch (error) {
       console.error(error);

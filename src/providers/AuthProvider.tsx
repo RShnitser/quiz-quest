@@ -1,9 +1,76 @@
-import React, { createContext, useContext } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
+import {
+  UserInfo,
+  UserResponse,
+  loginUserAPI,
+  addUserAPI,
+} from "../quiz-api/quiz-api";
 
-const AuthContext = createContext({});
+const INIT_USER: UserResponse = {
+  //id: -1,
+  userInfo: {
+    email: "",
+  },
+  //userName: "",
+  //password: "",
+  token: "",
+};
+
+export type AuthContextType = {
+  user: UserResponse;
+  loginUser: (user: UserInfo) => Promise<UserResponse | undefined>;
+  logoutUser: () => void;
+  addUser: (user: UserInfo) => Promise<UserResponse | undefined>;
+};
+
+const AuthContext = createContext({} as AuthContextType);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  return <AuthContext.Provider value={{}}>{children}</AuthContext.Provider>;
+  const [user, setUser] = useState<UserResponse>(INIT_USER);
+
+  useEffect(() => {
+    const loggedInUser = localStorage.getItem("user");
+    if (loggedInUser) {
+      setUser(JSON.parse(loggedInUser));
+    }
+  }, []);
+
+  const loginUser = async (user: UserInfo) => {
+    try {
+      const result = await loginUserAPI(user);
+      if (result) {
+        localStorage.setItem("user", JSON.stringify(result));
+        setUser(result);
+      }
+      return result;
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const logoutUser = () => {
+    setUser(INIT_USER);
+    localStorage.removeItem("user");
+  };
+
+  const addUser = async (user: UserInfo) => {
+    try {
+      const result = await addUserAPI(user);
+      if (result) {
+        localStorage.setItem("user", JSON.stringify(result));
+        setUser(result);
+      }
+      return result;
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  return (
+    <AuthContext.Provider value={{ user, loginUser, logoutUser, addUser }}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
 const useAuth = () => {

@@ -18,15 +18,15 @@ export type UserResponse = {
   //password: string;
 };
 
-export type Settings = {
+export type SettingsInfo = {
   count: number;
   tags: Array<string>;
 };
 
-export type SettingsInfo = {
-  count: number;
-  tags: Tags;
-};
+// export type SettingsInfo = {
+//   count: number;
+//   tags: Tags;
+// };
 
 export enum QuestionType {
   fillInBlank = "Fill in the blank",
@@ -39,16 +39,16 @@ type AnswerInfo = {
   answerApplies?: boolean;
 };
 
-type UserAnswer = {
+type UserAnswerInfo = {
   answerId: number;
   answer?: string;
   answerApplies?: boolean;
   order: number;
 };
 
-type HistoryInfo = {
+export type HistoryInfo = {
   questionId: number;
-  userAnswer: UserAnswer[];
+  userAnswer: UserAnswerInfo[];
 };
 
 export type QuestionInfo = {
@@ -57,6 +57,7 @@ export type QuestionInfo = {
   tags: string[];
   options: AnswerInfo[];
 };
+
 // type FillInBlankQuestionInfo = {
 //   question: string;
 //   tags: Tags;
@@ -84,46 +85,46 @@ export type QuestionInfo = {
 //   | MultipleChoiceQuestionInfo
 //   | AllThatApplyQuestionInfo;
 
-// type FillInBlankQuestion = {
-//   readonly id: number;
-//   question: string;
-//   tags: Array<string>;
-//   type: QuestionType.fillInBlank;
-//   answer: string;
-// };
+type FillInBlankQuestion = {
+  readonly id: number;
+  question: string;
+  tags: Array<string>;
+  type: QuestionType.fillInBlank;
+  answer: string;
+};
 
-// type MultipleChoiceOption = {
-//   id: number;
-//   answer: string;
-// };
+type MultipleChoiceOption = {
+  id: number;
+  answer: string;
+};
 
-// type MultipleChoiceQuestion = {
-//   readonly id: number;
-//   question: string;
-//   tags: Array<string>;
-//   type: QuestionType.multipleChoice;
-//   answer: string;
-//   options: Array<MultipleChoiceOption>;
-// };
+type MultipleChoiceQuestion = {
+  readonly id: number;
+  question: string;
+  tags: Array<string>;
+  type: QuestionType.multipleChoice;
+  answer: string;
+  options: Array<MultipleChoiceOption>;
+};
 
-// type AllThatApplyOption = {
-//   id: number;
-//   answer: string;
-//   answerApplies: boolean;
-// };
+type AllThatApplyOption = {
+  id: number;
+  answer: string;
+  answerApplies: boolean;
+};
 
-// type AllThatApplyQuestion = {
-//   readonly id: number;
-//   question: string;
-//   tags: Array<string>;
-//   type: QuestionType.allThatApply;
-//   options: Array<AllThatApplyOption>;
-// };
+type AllThatApplyQuestion = {
+  readonly id: number;
+  question: string;
+  tags: Array<string>;
+  type: QuestionType.allThatApply;
+  options: Array<AllThatApplyOption>;
+};
 
-// export type Question =
-//   | FillInBlankQuestion
-//   | MultipleChoiceQuestion
-//   | AllThatApplyQuestion;
+export type Question =
+  | FillInBlankQuestion
+  | MultipleChoiceQuestion
+  | AllThatApplyQuestion;
 
 type QuestionResponse = {
   id: number;
@@ -142,7 +143,7 @@ type HistoryResponse = {
 type UserHistory = {
   question: QuestionResponse;
   answers: {
-    userAnswer: UserAnswer;
+    userAnswer: UserAnswerInfo;
     answer: AnswerInfo;
   }[];
 };
@@ -178,10 +179,10 @@ export type History = {
   date: Date;
 };
 
-export type HistoryData = {
-  history: History;
-  question: Question;
-};
+// export type HistoryData = {
+//   history: History;
+//   question: Question;
+// };
 
 export const loginUserAPI = async (user: UserInfo): Promise<UserResponse> => {
   // const response: Response = await fetch(URL_USERS);
@@ -282,7 +283,7 @@ export const addQuestionAPI = async (
 //   return array;
 // };
 
-export const getQuestAPI = async (settings: Settings, token: string) => {
+export const getQuestAPI = async (settings: SettingsInfo, token: string) => {
   const response = await fetch(URL_QUIZ, {
     method: "POST",
     body: JSON.stringify(settings),
@@ -378,7 +379,7 @@ export const getHistoryAPI = async (token: string): Promise<UserHistory[]> => {
     throw Error("Could not add question");
   }
 
-  const history = await response.json();
+  const history = (await response.json()) as Promise<UserHistory[]>;
   return history;
   // const [historyRes, questionRes] = await Promise.all([
   //   fetch(URL_HISTORY),
