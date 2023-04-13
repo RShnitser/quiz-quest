@@ -23,10 +23,10 @@ export type SettingsInfo = {
   tags: Array<string>;
 };
 
-// export type SettingsInfo = {
-//   count: number;
-//   tags: Tags;
-// };
+export type Settings = {
+  count: number;
+  tags: Tags;
+};
 
 export enum QuestionType {
   fillInBlank = "Fill in the blank",
@@ -179,10 +179,28 @@ export type History = {
   date: Date;
 };
 
-// export type HistoryData = {
-//   history: History;
-//   question: Question;
-// };
+export type HistoryData = {
+  history: History;
+  question: Question;
+};
+
+type QuizResponse = {
+  question: QuestionResponse;
+  answers: AnswerResponse[];
+  tags: TagResponse[];
+};
+
+type AnswerResponse = {
+  id: number;
+  questionId: number;
+  answer: string;
+  answerApplies: boolean | null;
+};
+
+type TagResponse = {
+  id: number;
+  value: string;
+};
 
 export const loginUserAPI = async (user: UserInfo): Promise<UserResponse> => {
   // const response: Response = await fetch(URL_USERS);
@@ -296,7 +314,29 @@ export const getQuestAPI = async (settings: SettingsInfo, token: string) => {
     throw Error("Could not fetch questions");
   }
 
-  const questions = await response.json();
+  const questions = (await response.json()) as QuizResponse[];
+  const result: Question[] = [];
+
+  for (const question of questions) {
+    if (question.question.type === QuestionType.allThatApply) {
+      const questionData: AllThatApplyQuestion = {
+        id: question.question.id,
+        type: QuestionType.allThatApply,
+        question: question.question.question,
+        tags: question.tags.map((tag) => tag.value),
+        options: question.answers.map((answer) => {
+          return {
+            id: answer.id,
+            answer: answer.answer,
+            answerApplies: answer.answerApplies as boolean,
+          };
+        }),
+      };
+      result.push(questionData);
+    }
+  }
+
+  return result;
 
   // const filteredQuestions = settings.tags.length
   //   ? questions.filter((question: Question) => {

@@ -4,10 +4,12 @@ import {
   addUserAPI,
   UserResponse,
   UserInfo,
+  Settings,
   Answer,
   Question,
   History,
   HistoryInfo,
+  HistoryData,
   addQuestionAPI,
   SettingsInfo,
   getQuestAPI,
@@ -25,7 +27,7 @@ export type QuizContextType = {
   user: UserResponse;
   settings: SettingsInfo;
   addQuestion: (question: QuestionInfo) => void;
-  getQuest: (settings: SettingsInfo) => Promise<Array<Question> | undefined>;
+  getQuest: (settings: Settings) => Promise<Array<Question> | undefined>;
   addHistory: (
     userId: number,
     questionId: number,
@@ -76,9 +78,20 @@ export const QuizProvider = ({ children }: { children: React.ReactPortal }) => {
     }
   };
 
-  const getQuest = async (settings: SettingsInfo) => {
+  const getQuest = async (settings: Settings) => {
+    const questSettings: SettingsInfo = {
+      count: settings.count,
+      tags: [],
+    };
+
+    for (const entry of settings.tags.entries()) {
+      if (entry[1] === true) {
+        questSettings.tags.push(entry[0]);
+      }
+    }
+
     try {
-      const result = await getQuestAPI(settings, user.token);
+      const result = await getQuestAPI(questSettings, user.token);
       return result;
     } catch (error) {
       console.error(error);
@@ -94,9 +107,9 @@ export const QuizProvider = ({ children }: { children: React.ReactPortal }) => {
     }
   };
 
-  const getHistory = async (userId: number) => {
+  const getHistory = async () => {
     try {
-      const result = await getHistoryAPI(userId);
+      const result = await getHistoryAPI(user.token);
       return result;
     } catch (error) {
       console.error(error);
