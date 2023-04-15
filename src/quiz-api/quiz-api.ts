@@ -333,6 +333,35 @@ export const getQuestAPI = async (settings: SettingsInfo, token: string) => {
         }),
       };
       result.push(questionData);
+    } else if (question.question.type === QuestionType.multipleChoice) {
+      const questionData: MultipleChoiceQuestion = {
+        id: question.question.id,
+        type: QuestionType.multipleChoice,
+        question: question.question.question,
+        tags: question.tags.map((tag) => tag.value),
+        answer: "",
+        options: question.answers.map((answer) => {
+          const result: MultipleChoiceOption = {
+            id: answer.id,
+            answer: answer.answer,
+          };
+          return result;
+        }),
+      };
+      for (const answerData of question.answers) {
+        if (answerData.answerApplies) {
+          questionData.answer = answerData.answer;
+          break;
+        }
+      }
+    } else if (question.question.type === QuestionType.fillInBlank) {
+      const questionData: FillInBlankQuestion = {
+        id: question.question.id,
+        type: QuestionType.fillInBlank,
+        question: question.question.question,
+        tags: question.tags.map((tag) => tag.value),
+        answer: question.answers[0].answer,
+      };
     }
   }
 

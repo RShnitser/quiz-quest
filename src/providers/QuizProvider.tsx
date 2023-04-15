@@ -109,7 +109,13 @@ export const QuizProvider = ({ children }: { children: React.ReactPortal }) => {
 
   const getHistory = async () => {
     try {
-      const result = await getHistoryAPI(user.token);
+      const data = await getHistoryAPI(user.token);
+      const result: HistoryData[] = [];
+      for (const entry of data) {
+        const resultEntry: HistoryData = {
+          history: {},
+        };
+      }
       return result;
     } catch (error) {
       console.error(error);
