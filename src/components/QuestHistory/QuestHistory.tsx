@@ -2,19 +2,21 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import useQuiz from "../../providers/QuizProvider";
 import { QuizContextType } from "../../providers/QuizProvider";
-import { HistoryData } from "../../quiz-api/quiz-api";
 import HistoryCard from "../HistoryCard/HistoryCard";
+import { UserHistory } from "../../quiz-api/quiz-types";
+import useAuth from "../../providers/AuthProvider";
 
 const QuestHistory = () => {
-  const { user, getHistory }: QuizContextType = useQuiz();
+  const { getHistory }: QuizContextType = useQuiz();
   const navigate = useNavigate();
 
-  const [history, setHistory] = useState<Array<HistoryData>>([]);
+  const [history, setHistory] = useState<Array<UserHistory>>([]);
+  const { user } = useAuth();
 
   useEffect(() => {
     const getHistoryData = async () => {
       try {
-        const result = await getHistory(user.id);
+        const result = await getHistory(user.token);
         if (result) {
           setHistory(result);
         }
@@ -31,11 +33,7 @@ const QuestHistory = () => {
       return (
         <div className="quest-answer-container" key={`answer${index}`}>
           <div className="title">{data.question.question}</div>
-          <HistoryCard
-            question={data.question}
-            answer={data.history.answer}
-            date={new Date(data.history.date).toString()}
-          />
+          <HistoryCard historyData={data} />
         </div>
       );
     });

@@ -1,18 +1,11 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import {
-  UserInfo,
-  UserResponse,
-  loginUserAPI,
-  addUserAPI,
-} from "../quiz-api/quiz-api";
+import { loginUserAPI, addUserAPI } from "../quiz-api/quiz-api";
+import { UserResponse, UserInfo } from "../quiz-api/quiz-types";
 
 const INIT_USER: UserResponse = {
-  //id: -1,
   userInfo: {
     email: "",
   },
-  //userName: "",
-  //password: "",
   token: "",
 };
 

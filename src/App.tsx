@@ -11,6 +11,7 @@ import { QuizProvider } from "./providers/QuizProvider";
 import UserLogin from "./components/UserLogin/UserLogin";
 import UserCreate from "./components/UserCreate/UserCreate";
 import "./App.css";
+import { AuthProvider } from "./providers/AuthProvider";
 
 const PrivateRoute = () => {
   const location = useLocation();
@@ -31,17 +32,19 @@ const PrivateRoute = () => {
 
 function App() {
   return (
-    <QuizProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/login" element={<UserLogin />} />
-          <Route path="/register" element={<UserCreate />} />
-          <Route element={<PrivateRoute />}>
-            <Route path="*" element={<QuizApp />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
-    </QuizProvider>
+    <AuthProvider>
+      <QuizProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/login" element={<UserLogin />} />
+            <Route path="/register" element={<UserCreate />} />
+            <Route element={<PrivateRoute />}>
+              <Route path="*" element={<QuizApp />} />
+            </Route>
+          </Routes>
+        </BrowserRouter>
+      </QuizProvider>
+    </AuthProvider>
   );
 }
 

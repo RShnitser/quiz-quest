@@ -1,133 +1,152 @@
 import React from "react";
-import { Question, QuestionType, Answer } from "../../quiz-api/quiz-api";
+import {
+  AnswerInfo,
+  QuestionType,
+  UserAnswerInfo,
+  UserHistory,
+} from "../../quiz-api/quiz-types";
 import "./HistoryCard.css";
 
 type HistoryCardProps = {
-  question: Question;
-  answer: Answer;
-  date?: string;
+  historyData: UserHistory;
 };
 
-const HistoryCard = ({ question, answer, date }: HistoryCardProps) => {
+type HistoryDisplayProps = {
+  answers: { answer: AnswerInfo; userAnswer: UserAnswerInfo }[];
+};
+
+const FillInBlankHistory = ({ answers }: HistoryDisplayProps) => {
+  const answer = answers[0].answer;
+  const userAnswer = answers[0].userAnswer;
+
+  if (answer.answer === undefined || userAnswer.userAnswer === undefined) {
+    return null;
+  }
+  return (
+    <React.Fragment>
+      {answer.answer.toLocaleLowerCase() !==
+      userAnswer.userAnswer.toLocaleLowerCase() ? (
+        <>
+          <div className="quest-grid">
+            <div className="incorrect">
+              <i className="fa-solid fa-xmark"></i>
+            </div>
+            <div>{userAnswer.userAnswer}</div>
+          </div>
+          <div>
+            <span className="quest-bold">{"Correct Answer: "}</span>
+            {answer.answer}
+          </div>
+        </>
+      ) : (
+        <div className="quest-flex">
+          <div className="correct">
+            <i className="fa-solid fa-check"></i>
+          </div>
+          <div>{userAnswer.userAnswer}</div>
+        </div>
+      )}
+    </React.Fragment>
+  );
+};
+
+const AllThatApplyHistory = ({ answers }: HistoryDisplayProps) => {
+  return (
+    <div className="quest-grid">
+      {answers.map((option) => {
+        let check = <div></div>;
+        if (
+          option.answer.answerApplies === option.userAnswer.userAnswerApplies &&
+          option.answer.answerApplies
+        ) {
+          check = (
+            <div className="correct">
+              <i className="fa-solid fa-check"></i>
+            </div>
+          );
+        } else if (
+          option.answer.answerApplies !== option.userAnswer.userAnswerApplies &&
+          option.answer.answerApplies
+        ) {
+          check = (
+            <div className="incorrect">
+              <i className="fa-solid fa-xmark"></i>
+            </div>
+          );
+        }
+        return (
+          <React.Fragment key={option.userAnswer.answerId}>
+            {check}
+            <div
+              className={
+                option.answer.answerApplies ? "quest-bold correct-text" : ""
+              }
+            >
+              {option.answer.answer}
+            </div>
+          </React.Fragment>
+        );
+      })}
+    </div>
+  );
+};
+
+const MultipleChoiceHistory = ({ answers }: HistoryDisplayProps) => {
+  return (
+    <div className="quest-grid">
+      {answers.map((option) => {
+        let check = <div></div>;
+        const correct =
+          option.answer.answerApplies === true &&
+          option.answer.answerApplies === option.userAnswer.userAnswerApplies;
+        const incorrect =
+          option.userAnswer.userAnswerApplies === true &&
+          option.userAnswer.userAnswerApplies !== option.answer.answerApplies;
+        if (correct) {
+          check = (
+            <div className="correct">
+              <i className="fa-solid fa-check"></i>
+            </div>
+          );
+        } else if (incorrect) {
+          check = (
+            <div className="incorrect">
+              <i className="fa-solid fa-xmark"></i>
+            </div>
+          );
+        }
+
+        return (
+          <React.Fragment key={option.userAnswer.answerId}>
+            {check}
+            <div
+              className={
+                option.answer.answerApplies ? "quest-bold correct-text" : ""
+              }
+            >
+              {option.answer.answer}
+            </div>
+          </React.Fragment>
+        );
+      })}
+    </div>
+  );
+};
+
+const HistoryCard = ({
+  historyData: { question, date, answers },
+}: HistoryCardProps) => {
   let result = null;
 
   switch (question.type) {
     case QuestionType.fillInBlank:
-      if (answer.type === QuestionType.fillInBlank) {
-        result = (
-          <React.Fragment>
-            {answer.answer.toLocaleLowerCase() !==
-            question.answer.toLocaleLowerCase() ? (
-              <>
-                <div className="quest-grid">
-                  <div className="incorrect">
-                    <i className="fa-solid fa-xmark"></i>
-                  </div>
-                  <div>{answer.answer}</div>
-                </div>
-                <div>
-                  <span className="quest-bold">{"Correct Answer: "}</span>
-                  {question.answer}
-                </div>
-              </>
-            ) : (
-              <div className="quest-flex">
-                <div className="correct">
-                  <i className="fa-solid fa-check"></i>
-                </div>
-                <div>{answer.answer}</div>
-              </div>
-            )}
-          </React.Fragment>
-        );
-      }
+      result = <FillInBlankHistory answers={answers} />;
       break;
     case QuestionType.allThatApply:
-      if (answer.type === QuestionType.allThatApply) {
-        result = (
-          <div className="quest-grid">
-            {answer.answer.map((option, index) => {
-              const questionOption = question.options.find(
-                (element) => element.id === option.id
-              );
-              if (questionOption) {
-                let check = <div></div>;
-                if (questionOption.answerApplies === option.applies) {
-                  check = (
-                    <div className="correct">
-                      <i className="fa-solid fa-check"></i>
-                    </div>
-                  );
-                } else {
-                  check = (
-                    <div className="incorrect">
-                      <i className="fa-solid fa-xmark"></i>
-                    </div>
-                  );
-                }
-                return (
-                  <React.Fragment key={option.id}>
-                    {check}
-                    <div className={option.applies ? "quest-bold" : ""}>
-                      {questionOption.answer}
-                    </div>
-                  </React.Fragment>
-                );
-              }
-            })}
-          </div>
-        );
-      }
+      result = <AllThatApplyHistory answers={answers} />;
       break;
     case QuestionType.multipleChoice:
-      if (answer.type === QuestionType.multipleChoice) {
-        result = (
-          <div className="quest-grid">
-            {answer.order.map((orderNum) => {
-              const questionOption = question.options.find(
-                (option) => option.id === orderNum
-              );
-              if (questionOption) {
-                let check = <div></div>;
-                if (questionOption.id === answer.answer) {
-                  if (answer.answer === 0) {
-                    check = (
-                      <div className="correct">
-                        <i className="fa-solid fa-check"></i>
-                      </div>
-                    );
-                  } else {
-                    check = (
-                      <div className="incorrect">
-                        <i className="fa-solid fa-xmark"></i>
-                      </div>
-                    );
-                  }
-                }
-                if (answer.answer !== 0 && questionOption.id === 0) {
-                  check = (
-                    <div className="correct">
-                      <i className="fa-solid fa-check"></i>
-                    </div>
-                  );
-                }
-                return (
-                  <React.Fragment key={questionOption.answer}>
-                    {check}
-                    <div
-                      className={
-                        questionOption.id === answer.answer ? "quest-bold" : ""
-                      }
-                    >
-                      {questionOption.answer}
-                    </div>
-                  </React.Fragment>
-                );
-              }
-            })}
-          </div>
-        );
-      }
+      result = <MultipleChoiceHistory answers={answers} />;
       break;
     default:
       break;

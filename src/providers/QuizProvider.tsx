@@ -1,39 +1,32 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState } from "react";
 import {
-  loginUserAPI,
-  addUserAPI,
-  UserResponse,
-  UserInfo,
-  Settings,
-  Answer,
-  Question,
-  History,
-  HistoryInfo,
-  HistoryData,
   addQuestionAPI,
-  SettingsInfo,
   getQuestAPI,
   addHistoryAPI,
   getHistoryAPI,
 } from "../quiz-api/quiz-api";
-import { QuestionInfo } from "../quiz-api/quiz-api";
-import useAuth from "./AuthProvider";
-
-// type QuizProviderProps = {
-//   children: React.ReactNode;
-// };
+import {
+  UserHistory,
+  QuestionInfo,
+  SettingsInfo,
+  HistoryResponse,
+  HistoryInfo,
+  Question,
+} from "../quiz-api/quiz-types";
 
 export type QuizContextType = {
-  user: UserResponse;
   settings: SettingsInfo;
-  addQuestion: (question: QuestionInfo) => void;
-  getQuest: (settings: Settings) => Promise<Array<Question> | undefined>;
+  addQuestion: (question: QuestionInfo, token: string) => void;
+  getQuest: (
+    settings: SettingsInfo,
+    token: string
+  ) => Promise<Array<Question> | undefined>;
+
   addHistory: (
-    userId: number,
-    questionId: number,
-    answer: Answer
-  ) => Promise<History | undefined>;
-  getHistory: (userId: number) => Promise<Array<HistoryData> | undefined>;
+    history: HistoryInfo[],
+    token: string
+  ) => Promise<HistoryResponse | undefined>;
+  getHistory: (token: string) => Promise<Array<UserHistory> | undefined>;
   setSettings: (settings: SettingsInfo) => void;
 };
 
@@ -42,81 +35,43 @@ const INIT_SETTINGS: SettingsInfo = {
   tags: [],
 };
 
-const QuizContext = createContext<QuizContextType>({
-  // user: INIT_USER,
-  // settings: INIT_SETTINGS,
-  // loginUser: () => {
-  //   return new Promise(() => undefined);
-  // },
-  // logoutUser: () => {},
-  // addUser: () => {
-  //   return new Promise(() => undefined);
-  // },
-  // addQuestion: () => {},
-  // getQuest: () => {
-  //   return new Promise(() => undefined);
-  // },
-  // setSettings: () => {},
-  // addHistory: () => {
-  //   return new Promise(() => undefined);
-  // },
-  // getHistory: () => {
-  //   return new Promise(() => undefined);
-  // },
-} as QuizContextType);
+const QuizContext = createContext<QuizContextType>({} as QuizContextType);
 
-export const QuizProvider = ({ children }: { children: React.ReactPortal }) => {
-  const { user, loginUser, logoutUser, addUser } = useAuth();
+export const QuizProvider = ({ children }: { children: React.ReactNode }) => {
   const [settings, setSettings] = useState<SettingsInfo>(INIT_SETTINGS);
 
-  const addQuestion = async (question: QuestionInfo) => {
+  const addQuestion = async (question: QuestionInfo, token: string) => {
     try {
-      const result = await addQuestionAPI(question, user.token);
+      const result = await addQuestionAPI(question, token);
       return result;
     } catch (error) {
       console.error(error);
     }
   };
 
-  const getQuest = async (settings: Settings) => {
-    const questSettings: SettingsInfo = {
-      count: settings.count,
-      tags: [],
-    };
-
-    for (const entry of settings.tags.entries()) {
-      if (entry[1] === true) {
-        questSettings.tags.push(entry[0]);
-      }
-    }
-
+  const getQuest = async (settings: SettingsInfo, token: string) => {
     try {
-      const result = await getQuestAPI(questSettings, user.token);
+      const result = await getQuestAPI(settings, token);
+
       return result;
     } catch (error) {
       console.error(error);
     }
   };
 
-  const addHistory = async (history: HistoryInfo) => {
+  const addHistory = async (history: HistoryInfo[], token: string) => {
     try {
-      const result = await addHistoryAPI(history, user.token);
+      const result = await addHistoryAPI(history, token);
       return result;
     } catch (error) {
       console.error(error);
     }
   };
 
-  const getHistory = async () => {
+  const getHistory = async (token: string) => {
     try {
-      const data = await getHistoryAPI(user.token);
-      const result: HistoryData[] = [];
-      for (const entry of data) {
-        const resultEntry: HistoryData = {
-          history: {},
-        };
-      }
-      return result;
+      const data = await getHistoryAPI(token);
+      return data;
     } catch (error) {
       console.error(error);
     }
@@ -125,11 +80,7 @@ export const QuizProvider = ({ children }: { children: React.ReactPortal }) => {
   return (
     <QuizContext.Provider
       value={{
-        user,
         settings,
-        loginUser,
-        logoutUser,
-        addUser,
         addQuestion,
         getQuest,
         setSettings,

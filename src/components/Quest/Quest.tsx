@@ -1,11 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import useAuth from "../../providers/AuthProvider";
 import useQuiz from "../../providers/QuizProvider";
 import { QuizContextType } from "../../providers/QuizProvider";
-import { Question, QuestionType, Answer } from "../../quiz-api/quiz-api";
+import {
+  QuestionType,
+  UserAnswerInfo,
+  HistoryInfo,
+  Question,
+  Answer,
+  AnswerInfo,
+  UserHistory,
+  ErrorData,
+} from "../../quiz-api/quiz-types";
 import HistoryCard from "../HistoryCard/HistoryCard";
 import InputField from "../InputField/InputField";
-import { InputError } from "../QuizApp/QuizApp";
 import "./Quest.css";
 
 const INIT_ANSWER: Answer = {
@@ -14,22 +23,22 @@ const INIT_ANSWER: Answer = {
 };
 
 const Quest = () => {
-  const { user, getQuest, settings, addHistory }: QuizContextType = useQuiz();
+  const { user } = useAuth();
+  const { getQuest, settings, addHistory }: QuizContextType = useQuiz();
   const navigate = useNavigate();
 
   const [questions, setQuestions] = useState<Array<Question>>([]);
   const [questionIndex, setQuestionIndex] = useState<number>(0);
   const [answer, setAnswer] = useState<Answer>(INIT_ANSWER);
-  const [answerArray, setAnswerArray] = useState<Array<Answer>>([]);
+  const [answerArray, setAnswerArray] = useState<HistoryInfo[]>([]);
+
   const [correctCount, setCorrectCount] = useState<number>(0);
   const [quizComplete, setQuizComplete] = useState<boolean>(false);
-  const [error, setError] = useState<InputError>({});
-  const [pageError, setPageError] = useState<string>("");
 
   useEffect(() => {
     const getQuizQuestions = async () => {
       try {
-        const result = await getQuest(settings);
+        const result = await getQuest(settings, user.token);
         if (result) {
           setQuestions(result);
 
@@ -66,12 +75,12 @@ const Quest = () => {
       case QuestionType.multipleChoice:
         const choiceAnswer: Answer = {
           type: QuestionType.multipleChoice,
-          answer: -1,
-          order: [],
+          answer: [],
         };
         for (const option of question.options) {
-          choiceAnswer.order.push(option.id);
+          choiceAnswer.answer.push({ id: option.id, applies: false });
         }
+
         setAnswer(choiceAnswer);
         break;
       default:
@@ -79,100 +88,131 @@ const Quest = () => {
     }
   };
 
-  const isValidAnswer = (): boolean => {
-    let result = true;
-
-    setPageError("");
-    setError({});
-
-    const newError: InputError = {};
+  const buildError = (): ErrorData => {
+    const result: ErrorData = {
+      success: true,
+      error: {},
+    };
 
     switch (answer.type) {
       case QuestionType.fillInBlank:
         if (!answer.answer.length) {
-          newError["answer"] = "Enter an answer";
-          result = false;
+          result.error["blank"] = "Enter an answer";
+          result.success = false;
         }
         break;
       case QuestionType.multipleChoice:
-        if (answer.answer === -1) {
-          setPageError("Select an answer");
-          result = false;
+        if (answer.answer.every((choice) => choice.applies === false)) {
+          result.error["choice"] = "Select an answer";
+          result.success = false;
         }
         break;
       default:
         break;
     }
 
-    if (!result) {
-      setError(newError);
-    }
-
     return result;
   };
+
+  const errorData = buildError();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (isValidAnswer()) {
-      if (questions.length) {
-        const question = questions[questionIndex];
-        switch (question.type) {
-          case QuestionType.fillInBlank:
-            if (answer.type === QuestionType.fillInBlank) {
-              if (
-                question.answer.toLowerCase() === answer.answer.toLowerCase()
-              ) {
-                setCorrectCount(correctCount + 1);
-              }
-            }
-            break;
-          case QuestionType.allThatApply:
-            let correct = true;
+    if (!errorData.success) {
+      return;
+    }
 
-            if (answer.type === QuestionType.allThatApply) {
-              for (const answerIndex in answer.answer) {
-                if (
-                  question.options[answerIndex].answerApplies !==
-                  answer.answer[answerIndex].applies
-                ) {
-                  correct = false;
-                  break;
-                }
-              }
-            }
-            if (correct) {
-              setCorrectCount(correctCount + 1);
-            }
-            break;
-          case QuestionType.multipleChoice:
-            if (answer.type === QuestionType.multipleChoice) {
-              if (answer.answer === 0) {
-                setCorrectCount(correctCount + 1);
-              }
-            }
-            break;
-          default:
-            break;
-        }
+    if (questions.length < 1) {
+      return;
+    }
 
-        const newAnswers = [...answerArray];
-        newAnswers.push(answer);
-        setAnswerArray(newAnswers);
+    const question = questions[questionIndex];
+    const answerInfo: UserAnswerInfo[] = [];
 
-        await addHistory(user.id, question.id, answer);
+    if (
+      question.type === QuestionType.fillInBlank &&
+      answer.type === QuestionType.fillInBlank
+    ) {
+      if (question.answer.toLowerCase() === answer.answer.toLowerCase()) {
+        setCorrectCount(correctCount + 1);
+      }
 
-        if (questionIndex < questions.length - 1) {
-          const newQuestionIndex = questionIndex + 1;
-
-          setQuestionIndex(newQuestionIndex);
-
-          const question = questions[newQuestionIndex];
-          resetAnswer(question);
-        } else {
-          setQuizComplete(true);
+      answerInfo.push({
+        answerId: question.answerId,
+        userAnswer: answer.answer,
+      });
+    } else if (
+      question.type === QuestionType.allThatApply &&
+      answer.type === QuestionType.allThatApply
+    ) {
+      let applyCorrect = true;
+      for (const answerIndex in answer.answer) {
+        if (
+          question.options[answerIndex].answerApplies !==
+          answer.answer[answerIndex].applies
+        ) {
+          applyCorrect = false;
+          break;
         }
       }
+      if (applyCorrect) {
+        setCorrectCount(correctCount + 1);
+      }
+
+      for (let i = 0; i < question.options.length; i++) {
+        answerInfo.push({
+          answerId: question.options[i].id,
+          userAnswerApplies: answer.answer[i].applies,
+          order: i,
+        });
+      }
+    } else if (
+      question.type === QuestionType.multipleChoice &&
+      answer.type === QuestionType.multipleChoice
+    ) {
+      let correct = true;
+      for (const answerIndex in answer.answer) {
+        if (
+          question.options[answerIndex].answerApplies !==
+          answer.answer[answerIndex].applies
+        ) {
+          correct = false;
+          break;
+        }
+      }
+      if (correct) {
+        setCorrectCount(correctCount + 1);
+      }
+
+      for (let i = 0; i < question.options.length; i++) {
+        answerInfo.push({
+          answerId: question.options[i].id,
+          userAnswerApplies: answer.answer[i].applies,
+          order: i,
+        });
+      }
+    }
+
+    const historyInfo: HistoryInfo = {
+      questionId: question.id,
+      userAnswer: answerInfo,
+    };
+
+    const newAnswers = [...answerArray];
+    newAnswers.push(historyInfo);
+    setAnswerArray(newAnswers);
+
+    if (questionIndex < questions.length - 1) {
+      const newQuestionIndex = questionIndex + 1;
+
+      setQuestionIndex(newQuestionIndex);
+
+      const question = questions[newQuestionIndex];
+      resetAnswer(question);
+    } else {
+      setQuizComplete(true);
+      await addHistory(answerArray, user.token);
     }
   };
 
@@ -194,7 +234,7 @@ const Quest = () => {
                 answer: value,
               });
             }}
-            error={error["answer"] || ""}
+            error={errorData.error["blank"]}
           />
         );
         break;
@@ -232,7 +272,7 @@ const Quest = () => {
       case QuestionType.multipleChoice:
         input = (
           <div className="quest-answer-grid">
-            {question.options.map((option) => (
+            {question.options.map((option, index) => (
               <InputField
                 key={option.answer}
                 label={option.answer}
@@ -244,11 +284,18 @@ const Quest = () => {
                   target: { value },
                 }: React.ChangeEvent<HTMLInputElement>) => {
                   if (answer.type === QuestionType.multipleChoice) {
+                    const choiceAnswers = [];
+                    for (let i = 0; i < question.options.length; i++) {
+                      choiceAnswers.push({
+                        id: answer.answer[i].id,
+                        applies: false,
+                      });
+                    }
                     const choiceAnswer: Answer = {
                       type: QuestionType.multipleChoice,
-                      answer: parseInt(value),
-                      order: [...answer.order],
+                      answer: choiceAnswers,
                     };
+                    choiceAnswer.answer[index].applies = true;
                     setAnswer(choiceAnswer);
                   }
                 }}
@@ -272,6 +319,98 @@ const Quest = () => {
     );
   };
 
+  const buildSummary = () => {
+    const answerSummary: React.ReactNode[] = [];
+    for (let i = 0; i < questions.length; i++) {
+      const question = questions[i];
+
+      const answers: {
+        userAnswer: UserAnswerInfo;
+        answer: AnswerInfo;
+      }[] = [];
+
+      switch (question.type) {
+        case QuestionType.fillInBlank:
+          const blankUserAnswer = answerArray[i].userAnswer[0];
+          const blankAnswer: AnswerInfo = {
+            answer: question.answer,
+          };
+          answers.push({ userAnswer: blankUserAnswer, answer: blankAnswer });
+
+          break;
+        case QuestionType.allThatApply:
+          for (let j = 0; j < question.options.length; j++) {
+            const applyUserAnswer = answerArray[i].userAnswer[j];
+
+            const applyAnswer: AnswerInfo = {
+              answer: question.options[j].answer,
+              answerApplies: question.options[j].answerApplies,
+            };
+            answers.push({
+              userAnswer: applyUserAnswer,
+              answer: applyAnswer,
+            });
+          }
+          break;
+        case QuestionType.multipleChoice:
+          for (let j = 0; j < question.options.length; j++) {
+            const choiceUserAnswer = answerArray[i].userAnswer[j];
+
+            const choiceAnswer: AnswerInfo = {
+              answer: question.options[j].answer,
+              answerApplies: question.options[j].answerApplies,
+            };
+            answers.push({
+              userAnswer: choiceUserAnswer,
+              answer: choiceAnswer,
+            });
+          }
+          break;
+      }
+
+      const historyData: UserHistory = {
+        question: {
+          id: question.id,
+          type: question.type,
+          question: question.question,
+        },
+        date: new Date(Date.now()).toDateString(),
+        answers: answers,
+      };
+
+      answerSummary.push(
+        <div className="quest-answer-container" key={`answer${i}`}>
+          <div className="title">{`Question ${i + 1}: ${
+            question.question
+          }`}</div>
+
+          <HistoryCard historyData={historyData} />
+        </div>
+      );
+    }
+    return (
+      <div>
+        <div className="quest-percentage">{`${(
+          (correctCount / questions.length) *
+          100
+        ).toFixed(2)}%`}</div>
+        {answerSummary}
+        <ul className="menu-list">
+          <li>
+            <input
+              className="form-btn"
+              type="button"
+              value="Main Menu"
+              onClick={() => {
+                navigate("/");
+              }}
+            />
+          </li>
+        </ul>
+      </div>
+    );
+  };
+
   return (
     <div className="center-display">
       {!quizComplete ? (
@@ -281,7 +420,7 @@ const Quest = () => {
           ) : (
             <div>No Questions Available</div>
           )}
-          <div className="input-error">{pageError}</div>
+          <div className="input-error">{errorData.error["choice"]}</div>
           <ul className="menu-list">
             <li>
               <input className="form-btn" type="submit" value="Submit Answer" />
@@ -299,36 +438,7 @@ const Quest = () => {
           </ul>
         </form>
       ) : (
-        <div>
-          <div className="quest-percentage">{`${(
-            (correctCount / questions.length) *
-            100
-          ).toFixed(2)}%`}</div>
-          {answerArray.map((answer, index) => {
-            const question = questions[index];
-
-            return (
-              <div className="quest-answer-container" key={`answer${index}`}>
-                <div className="title">{`Question ${index + 1}: ${
-                  question.question
-                }`}</div>
-                <HistoryCard question={question} answer={answer} />
-              </div>
-            );
-          })}
-          <ul className="menu-list">
-            <li>
-              <input
-                className="form-btn"
-                type="button"
-                value="Main Menu"
-                onClick={() => {
-                  navigate("/");
-                }}
-              />
-            </li>
-          </ul>
-        </div>
+        buildSummary()
       )}
     </div>
   );
