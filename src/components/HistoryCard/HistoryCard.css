@@ -1,5 +1,9 @@
 .history-date {
-    color: var(--dark-gray);
-    margin-top: 15px;
-    font-size: .8rem;
+  color: var(--dark-gray);
+  margin-top: 15px;
+  font-size: 0.8rem;
+}
+
+.correct-text {
+  color: var(--green);
 }

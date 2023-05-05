@@ -1,12 +1,18 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import useAuth from "../../providers/AuthProvider";
 import useQuiz from "../../providers/QuizProvider";
 import { QuizContextType } from "../../providers/QuizProvider";
-import { QuestionType, QuestionInfo } from "../../quiz-api/quiz-api";
+import {
+  QuestionType,
+  QuestionData,
+  AnswerInfo,
+  QuestionInfo,
+  ErrorData,
+} from "../../quiz-api/quiz-types";
 import InputField from "../InputField/InputField";
-import { InputError } from "../QuizApp/QuizApp";
 
-const INIT_QUESTION: QuestionInfo = {
+const INIT_QUESTION: QuestionData = {
   question: "",
   type: QuestionType.fillInBlank,
   answer: "",
@@ -21,56 +27,55 @@ const INIT_QUESTION: QuestionInfo = {
 
 const QuestCreate = () => {
   const { addQuestion }: QuizContextType = useQuiz();
+  const { user } = useAuth();
   const navigate = useNavigate();
 
-  const [questionInfo, setQuestionInfo] = useState<QuestionInfo>(INIT_QUESTION);
+  const [questionData, setQuestionData] = useState<QuestionData>(INIT_QUESTION);
   const [answerCount] = useState<number>(4);
-  const [error, setError] = useState<InputError>({});
-  const [pageError, setPageError] = useState<string>("");
 
-  const isQuestionValid = (): boolean => {
-    let result = true;
+  const buildError = (): ErrorData => {
+    const result: ErrorData = {
+      success: true,
+      error: {},
+    };
 
-    setPageError("");
-    setError({});
-
-    const newError: InputError = {};
-
-    if (!questionInfo.question.length) {
-      newError["question"] = "Enter a question";
-      result = false;
+    if (!questionData.question.length) {
+      result.error["question"] = "Enter a question";
+      result.success = false;
     }
 
-    switch (questionInfo.type) {
+    switch (questionData.type) {
       case QuestionType.fillInBlank:
-        if (!questionInfo.answer.length) {
-          newError["answer"] = "Enter an answer";
-          result = false;
+        if (!questionData.answer.length) {
+          result.error["answer"] = "Enter an answer";
+          result.success = false;
         }
         break;
 
       case QuestionType.multipleChoice:
-        for (let i = 0; i < questionInfo.options.length; i++) {
-          const option = questionInfo.options[i];
+        for (let i = 0; i < questionData.options.length; i++) {
+          const option = questionData.options[i];
           if (option.answer.length === 0) {
-            newError[`option${i}`] = "Enter an answer";
+            result.error[`option${i}`] = "Enter an answer";
+            result.success = false;
           }
         }
         break;
 
       case QuestionType.allThatApply:
-        for (let i = 0; i < questionInfo.options.length; i++) {
-          const option = questionInfo.options[i];
+        for (let i = 0; i < questionData.options.length; i++) {
+          const option = questionData.options[i];
           if (option.answer.length === 0) {
-            newError[`answer${i}`] = "Enter an answer";
+            result.error[`answer${i}`] = "Enter an answer";
+            result.success = false;
           }
         }
         break;
     }
 
     let isTagsValid = false;
-    for (const key of questionInfo.tags.keys()) {
-      const tagChecked = questionInfo.tags.get(key);
+    for (const key of questionData.tags.keys()) {
+      const tagChecked = questionData.tags.get(key);
       if (tagChecked) {
         isTagsValid = true;
         break;
@@ -78,23 +83,60 @@ const QuestCreate = () => {
     }
 
     if (!isTagsValid) {
-      setPageError("Select a tag");
-    }
-
-    if (!result) {
-      setError(newError);
+      result.error["tags"] = "Select a tag";
+      result.success = false;
     }
 
     return result;
   };
 
+  const errorData = buildError();
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
 
     try {
-      if (isQuestionValid()) {
-        addQuestion(questionInfo);
-        setQuestionInfo({
+      if (errorData.success) {
+        const answerInfo: AnswerInfo[] = [];
+        switch (questionData.type) {
+          case QuestionType.fillInBlank:
+            answerInfo.push({ answer: questionData.answer });
+            break;
+
+          case QuestionType.multipleChoice:
+            for (const option of questionData.options) {
+              answerInfo.push({
+                answer: option.answer,
+                answerApplies: option.answerApplies,
+              });
+            }
+            break;
+
+          case QuestionType.allThatApply:
+            for (const option of questionData.options) {
+              answerInfo.push({
+                answer: option.answer,
+                answerApplies: option.answerApplies,
+              });
+            }
+            break;
+        }
+
+        const tags: string[] = [];
+        for (const entry of questionData.tags.entries()) {
+          if (entry[1] === true) {
+            tags.push(entry[0]);
+          }
+        }
+
+        const questionInfo: QuestionInfo = {
+          question: questionData.question,
+          type: questionData.type,
+          options: answerInfo,
+          tags: tags,
+        };
+
+        addQuestion(questionInfo, user.token);
+        setQuestionData({
           ...INIT_QUESTION,
           tags: new Map([
             ["HTML", false],
@@ -112,7 +154,7 @@ const QuestCreate = () => {
 
   let inputs = null;
 
-  switch (questionInfo.type) {
+  switch (questionData.type) {
     case QuestionType.fillInBlank:
       inputs = (
         <>
@@ -120,13 +162,13 @@ const QuestCreate = () => {
             label="Answer:"
             type="text"
             name="answer"
-            error={error["answer"] || ""}
-            value={questionInfo.answer}
+            error={errorData.error["answer"] || ""}
+            value={questionData.answer}
             onChange={({
               target: { value },
             }: React.ChangeEvent<HTMLInputElement>) => {
-              setQuestionInfo({
-                ...questionInfo,
+              setQuestionData({
+                ...questionData,
                 answer: value,
               });
             }}
@@ -143,15 +185,16 @@ const QuestCreate = () => {
             label={index === 0 ? "Answer :" : `Wrong Choice ${index}: `}
             type="text"
             name={index === 0 ? "answer" : `option${index - 1}`}
-            error={error[`option${index}`] || ""}
+            error={errorData.error[`option${index}`] || ""}
             onChange={({
               target: { value },
             }: React.ChangeEvent<HTMLInputElement>) => {
-              const options = [...questionInfo.options];
+              const options = [...questionData.options];
               options[index].answer = value;
-              setQuestionInfo({
-                ...questionInfo,
-                answer: options[0],
+
+              setQuestionData({
+                ...questionData,
+
                 options: options,
               });
             }}
@@ -170,14 +213,14 @@ const QuestCreate = () => {
               label={`Answer ${index + 1}: `}
               type="text"
               name={`answer${index}`}
-              error={error[`answer${index}`] || ""}
-              value={questionInfo.options[index].answer}
+              error={errorData.error[`answer${index}`] || ""}
+              value={questionData.options[index].answer}
               onChange={({
                 target: { value },
               }: React.ChangeEvent<HTMLInputElement>) => {
-                const options = [...questionInfo.options];
+                const options = [...questionData.options];
                 options[index].answer = value;
-                setQuestionInfo({ ...questionInfo, options: options });
+                setQuestionData({ ...questionData, options: options });
               }}
             />
 
@@ -187,9 +230,9 @@ const QuestCreate = () => {
               name={`answer${index}Applies`}
               error=""
               onChange={() => {
-                const options = [...questionInfo.options];
+                const options = [...questionData.options];
                 options[index].answerApplies = !options[index].answerApplies;
-                setQuestionInfo({ ...questionInfo, options: options });
+                setQuestionData({ ...questionData, options: options });
               }}
             />
           </React.Fragment>
@@ -205,18 +248,18 @@ const QuestCreate = () => {
   return (
     <div className="center-display">
       <h3 className="title">Add Question</h3>
-      <div className="input-error">{pageError}</div>
+      {/* <div className="input-error">{errorData.error["page"]}</div> */}
       <form className="form" onSubmit={handleSubmit}>
         <InputField
           label="Question: "
           name="question"
           type="text"
-          value={questionInfo.question}
-          error={error["question"] || ""}
+          value={questionData.question}
+          error={errorData.error["question"] || ""}
           onChange={({
             target: { value },
           }: React.ChangeEvent<HTMLInputElement>) => {
-            setQuestionInfo({ ...questionInfo, question: value });
+            setQuestionData({ ...questionData, question: value });
           }}
         />
         <label className="input-label" htmlFor="question-type">
@@ -226,49 +269,50 @@ const QuestCreate = () => {
           id="question-type"
           name="type"
           className="form-option"
-          value={questionInfo.type}
+          value={questionData.type}
           onChange={({
             target: { value },
           }: React.ChangeEvent<HTMLSelectElement>) => {
-            setError({});
-            setPageError("");
-
             switch (value) {
               case QuestionType.fillInBlank:
-                setQuestionInfo({
-                  question: questionInfo.question,
-                  type: value,
+                const blankData: QuestionData = {
+                  question: questionData.question,
+                  type: QuestionType.fillInBlank,
                   answer: "",
-                  tags: questionInfo.tags,
-                });
+                  tags: questionData.tags,
+                };
+                setQuestionData(blankData);
                 break;
               case QuestionType.multipleChoice:
                 const multipleChoiceOptions = [];
                 for (let index = 0; index < answerCount; index++) {
-                  multipleChoiceOptions.push({ id: index, answer: "" });
+                  multipleChoiceOptions.push({
+                    answer: "",
+                    answerApplies: index === 0,
+                  });
                 }
-                setQuestionInfo({
-                  question: questionInfo.question,
-                  type: value,
-                  answer: { id: 0, answer: "" },
+                const choiceData: QuestionData = {
+                  question: questionData.question,
+                  type: QuestionType.multipleChoice,
+
                   options: multipleChoiceOptions,
-                  tags: questionInfo.tags,
-                });
+                  tags: questionData.tags,
+                };
+                setQuestionData(choiceData);
                 break;
               case QuestionType.allThatApply:
                 const allThatApplyOptions = [];
                 for (let index = 0; index < answerCount; index++) {
                   allThatApplyOptions.push({
-                    id: index,
                     answer: "",
                     answerApplies: false,
                   });
                 }
-                setQuestionInfo({
-                  question: questionInfo.question,
-                  type: value,
+                setQuestionData({
+                  question: questionData.question,
+                  type: QuestionType.allThatApply,
                   options: allThatApplyOptions,
-                  tags: questionInfo.tags,
+                  tags: questionData.tags,
                 });
                 break;
               default:
@@ -285,20 +329,20 @@ const QuestCreate = () => {
         {inputs}
         <label className="input-label">Tags:</label>
         <div className="form-grid">
-          {Array.from(questionInfo.tags.keys()).map((tag) => (
+          {Array.from(questionData.tags.keys()).map((tag) => (
             <React.Fragment key={tag}>
               <InputField
                 label={tag}
                 type="checkbox"
-                checked={questionInfo.tags.get(tag)}
+                checked={questionData.tags.get(tag)}
                 error=""
                 onChange={() => {
-                  setQuestionInfo({
-                    ...questionInfo,
+                  setQuestionData({
+                    ...questionData,
                     tags: new Map<string, boolean>(
-                      questionInfo.tags.set(
+                      questionData.tags.set(
                         tag,
-                        !questionInfo.tags.get(tag) || false
+                        !questionData.tags.get(tag) || false
                       )
                     ),
                   });
@@ -307,6 +351,7 @@ const QuestCreate = () => {
             </React.Fragment>
           ))}
         </div>
+        <div className="input-error">{errorData.error["tags"]}</div>
         <ul className="menu-list">
           <li>
             <input className="form-btn" type="submit" value="Add Question" />

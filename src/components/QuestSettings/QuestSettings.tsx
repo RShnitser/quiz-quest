@@ -3,9 +3,9 @@ import { useNavigate } from "react-router-dom";
 import useQuiz from "../../providers/QuizProvider";
 import { QuizContextType } from "../../providers/QuizProvider";
 import InputField from "../InputField/InputField";
-import { SettingsInfo, Settings } from "../../quiz-api/quiz-api";
+import { SettingsData, SettingsInfo } from "../../quiz-api/quiz-types";
 
-const INIT_SETTINGS: SettingsInfo = {
+const INIT_SETTINGS: SettingsData = {
   count: 5,
   tags: new Map([
     ["HTML", false],
@@ -19,10 +19,10 @@ const INIT_SETTINGS: SettingsInfo = {
 const QuestSettings = () => {
   const { settings, setSettings }: QuizContextType = useQuiz();
   const navigate = useNavigate();
-  const [settingsInfo, setSettingsInfo] = useState<SettingsInfo>(INIT_SETTINGS);
+  const [settingsData, setSettingsData] = useState<SettingsData>(INIT_SETTINGS);
 
   useEffect(() => {
-    const newSettings: SettingsInfo = {
+    const newSettings: SettingsData = {
       count: settings.count,
       tags: new Map([
         ["HTML", false],
@@ -37,22 +37,34 @@ const QuestSettings = () => {
       newSettings.tags.set(tag, true);
     }
 
-    setSettingsInfo(newSettings);
+    setSettingsData(newSettings);
   }, []);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const settings: Settings = {
-      count: settingsInfo.count,
-      tags: [
-        ...Array.from(settingsInfo.tags.keys()).filter((key) => {
-          return settingsInfo.tags.get(key);
-        }),
-      ],
+    // const settings: Settings = {
+    //   count: settingsInfo.count,
+    //   tags: [
+    //     ...Array.from(settingsInfo.tags.keys()).filter((key) => {
+    //       return settingsInfo.tags.get(key);
+    //     }),
+    //   ],
+    // };
+
+    const tags: string[] = [];
+    for (const entry of settingsData.tags.entries()) {
+      if (entry[1] === true) {
+        tags.push(entry[0]);
+      }
+    }
+
+    const newSettings: SettingsInfo = {
+      count: settingsData.count,
+      tags: tags,
     };
 
-    setSettings(settings);
+    setSettings(newSettings);
     navigate("/");
   };
 
@@ -66,30 +78,30 @@ const QuestSettings = () => {
           type="number"
           min="2"
           max="15"
-          value={settingsInfo.count.toString()}
+          value={settingsData.count.toString()}
           error=""
           onChange={({
             target: { value },
           }: React.ChangeEvent<HTMLInputElement>) => {
-            setSettingsInfo({ ...settingsInfo, count: parseInt(value) });
+            setSettingsData({ ...settingsData, count: parseInt(value) });
           }}
         />
         <label className="input-label">Tags:</label>
         <div className="form-grid">
-          {Array.from(settingsInfo.tags.keys()).map((tag) => (
+          {Array.from(settingsData.tags.keys()).map((tag) => (
             <React.Fragment key={tag}>
               <InputField
                 label={tag}
                 type="checkbox"
-                checked={settingsInfo.tags.get(tag)}
+                checked={settingsData.tags.get(tag)}
                 error=""
                 onChange={() => {
-                  setSettingsInfo({
-                    ...settingsInfo,
+                  setSettingsData({
+                    ...settingsData,
                     tags: new Map<string, boolean>(
-                      settingsInfo.tags.set(
+                      settingsData.tags.set(
                         tag,
-                        !settingsInfo.tags.get(tag) || false
+                        !settingsData.tags.get(tag) || false
                       )
                     ),
                   });

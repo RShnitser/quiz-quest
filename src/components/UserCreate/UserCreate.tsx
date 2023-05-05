@@ -1,10 +1,9 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import useQuiz from "../../providers/QuizProvider";
-import { QuizContextType } from "../../providers/QuizProvider";
-import { UserInfo } from "../../quiz-api/quiz-api";
+import useAuth from "../../providers/AuthProvider";
+import { AuthContextType } from "../../providers/AuthProvider";
 import InputField from "../InputField/InputField";
-import { InputError } from "../QuizApp/QuizApp";
+import { ErrorData, UserInfo } from "../../quiz-api/quiz-types";
 
 const INIT_USER: UserInfo = {
   userName: "",
@@ -12,41 +11,48 @@ const INIT_USER: UserInfo = {
 };
 
 const UserCreate = () => {
-  const { addUser }: QuizContextType = useQuiz();
+  const { addUser }: AuthContextType = useAuth();
   const navigate = useNavigate();
 
   const [user, setUser] = useState(INIT_USER);
-  const [error, setError] = useState<InputError>({});
   const [pageError, setPageError] = useState<string>("");
+  const [showError, setShowError] = useState<boolean>(false);
 
+  const buildError = (): ErrorData => {
+    const result: ErrorData = {
+      success: true,
+      error: {},
+    };
+
+    if (!user.userName.length) {
+      result.error["userName"] = "Enter Name";
+      result.success = false;
+    }
+    if (!user.password.length) {
+      result.error["password"] = "Enter Password;";
+      result.success = false;
+    }
+
+    return result;
+  };
+
+  const errorData = buildError();
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     setPageError("");
-    setError({});
-
-    const newError: InputError = {};
 
     try {
-      let isError = false;
-      if (!user.userName.length) {
-        newError["userName"] = "Enter Name";
-        isError = true;
-      }
-      if (!user.password.length) {
-        newError["password"] = "Enter Password;";
-        isError = true;
-      }
-
-      if (!isError) {
+      if (errorData.success) {
         const result = await addUser(user);
         if (result) {
           navigate("/");
         } else {
           setPageError("User with this Username already exists");
+          setShowError(true);
         }
       } else {
-        setError(newError);
+        setShowError(true);
       }
     } catch (error) {
       console.error(error);
@@ -79,13 +85,17 @@ const UserCreate = () => {
   return (
     <div className="center-display">
       <h3 className="title">Create Account</h3>
-      <div className="input-error">{pageError}</div>
-      <form className="form" onSubmit={handleSubmit}>
+      <div className="input-error">{showError ? pageError : ""}</div>
+      <form
+        className="form"
+        onSubmit={handleSubmit}
+        onBlur={() => setShowError(false)}
+      >
         {formData.map((data) => (
           <InputField
             key={data.name}
             {...data}
-            error={error[data.name] || ""}
+            error={showError ? errorData.error[data.name] || "" : ""}
             onChange={handleChange}
           />
         ))}

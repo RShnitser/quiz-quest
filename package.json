@@ -5,8 +5,6 @@
   "type": "module",
   "scripts": {
     "dev": "vite --open",
-    "serve": "json-server --watch db.json",
-    "seed": "node reseed-db.js",
     "build": "tsc && vite build",
     "preview": "vite preview"
   },
