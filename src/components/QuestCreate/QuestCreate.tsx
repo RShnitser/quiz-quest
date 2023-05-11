@@ -135,7 +135,9 @@ const QuestCreate = () => {
           tags: tags,
         };
 
-        addQuestion(questionInfo, user.token);
+        if (user.success) {
+          addQuestion(questionInfo, user.token);
+        }
         setQuestionData({
           ...INIT_QUESTION,
           tags: new Map([

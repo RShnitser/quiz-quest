@@ -6,7 +6,7 @@ import InputField from "../InputField/InputField";
 import { ErrorData, UserInfo } from "../../quiz-api/quiz-types";
 
 const INIT_USER: UserInfo = {
-  userName: "",
+  email: "",
   password: "",
 };
 
@@ -24,8 +24,8 @@ const UserCreate = () => {
       error: {},
     };
 
-    if (!user.userName.length) {
-      result.error["userName"] = "Enter Name";
+    if (!user.email.length) {
+      result.error["email"] = "Enter Email";
       result.success = false;
     }
     if (!user.password.length) {
@@ -45,10 +45,10 @@ const UserCreate = () => {
     try {
       if (errorData.success) {
         const result = await addUser(user);
-        if (result) {
+        if (result.success) {
           navigate("/");
         } else {
-          setPageError("User with this Username already exists");
+          setPageError(result.message);
           setShowError(true);
         }
       } else {
@@ -69,9 +69,9 @@ const UserCreate = () => {
     {
       type: "text",
       label: " ",
-      name: "userName",
-      value: user.userName,
-      placeholder: "Enter User Name",
+      name: "email",
+      value: user.email,
+      placeholder: "Enter User Email",
     },
     {
       type: "password",

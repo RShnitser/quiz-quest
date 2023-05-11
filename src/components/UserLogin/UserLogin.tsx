@@ -6,7 +6,7 @@ import InputField from "../InputField/InputField";
 import { UserInfo, ErrorData } from "../../quiz-api/quiz-types";
 
 const INIT_USER: UserInfo = {
-  userName: "",
+  email: "",
   password: "",
 };
 
@@ -25,8 +25,8 @@ const UserLogin = () => {
       error: {},
     };
 
-    if (!user.userName.length) {
-      result.error["userName"] = "Enter Name";
+    if (!user.email.length) {
+      result.error["email"] = "Enter Email";
       result.success = false;
     }
     if (!user.password.length) {
@@ -71,9 +71,9 @@ const UserLogin = () => {
     {
       type: "text",
       label: "  ",
-      name: "userName",
-      value: user.userName,
-      placeholder: "Enter User Name",
+      name: "email",
+      value: user.email,
+      placeholder: "Enter User Email",
     },
     {
       type: "password",

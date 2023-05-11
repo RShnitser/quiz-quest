@@ -3,17 +3,15 @@ import { loginUserAPI, addUserAPI } from "../quiz-api/quiz-api";
 import { UserResponse, UserInfo } from "../quiz-api/quiz-types";
 
 const INIT_USER: UserResponse = {
-  userInfo: {
-    email: "",
-  },
-  token: "",
+  success: false,
+  message: "uninitialized",
 };
 
 export type AuthContextType = {
   user: UserResponse;
   loginUser: (user: UserInfo) => Promise<UserResponse | undefined>;
   logoutUser: () => void;
-  addUser: (user: UserInfo) => Promise<UserResponse | undefined>;
+  addUser: (user: UserInfo) => Promise<UserResponse>;
 };
 
 const AuthContext = createContext({} as AuthContextType);
@@ -47,16 +45,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const addUser = async (user: UserInfo) => {
-    try {
-      const result = await addUserAPI(user);
-      if (result) {
-        localStorage.setItem("user", JSON.stringify(result));
-        setUser(result);
-      }
-      return result;
-    } catch (error) {
-      console.error(error);
+    const result = await addUserAPI(user);
+
+    if (result.success) {
+      localStorage.setItem("user", JSON.stringify(result));
+      setUser(result);
     }
+
+    return result;
   };
 
   return (

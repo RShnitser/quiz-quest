@@ -16,9 +16,11 @@ const QuestHistory = () => {
   useEffect(() => {
     const getHistoryData = async () => {
       try {
-        const result = await getHistory(user.token);
-        if (result) {
-          setHistory(result);
+        if (user.success) {
+          const result = await getHistory(user.token);
+          if (result) {
+            setHistory(result);
+          }
         }
       } catch (error) {
         console.error(error);

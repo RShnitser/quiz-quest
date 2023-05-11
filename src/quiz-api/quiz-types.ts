@@ -172,14 +172,22 @@ export type UserHistory = {
 
 //user data sent to the backend
 export type UserInfo = {
-  userName: string;
+  email: string;
   password: string;
 };
 
 //user data received from the backend
-export type UserResponse = {
+export type UserResponseSuccess = {
+  success: true;
   userInfo: {
     email: string;
   };
   token: string;
 };
+
+type UserResponseFailure = {
+  success: false;
+  message: string;
+};
+
+export type UserResponse = UserResponseSuccess | UserResponseFailure;

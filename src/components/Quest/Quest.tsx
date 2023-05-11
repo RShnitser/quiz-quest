@@ -38,12 +38,14 @@ const Quest = () => {
   useEffect(() => {
     const getQuizQuestions = async () => {
       try {
-        const result = await getQuest(settings, user.token);
-        if (result) {
-          setQuestions(result);
+        if (user.success) {
+          const result = await getQuest(settings, user.token);
+          if (result) {
+            setQuestions(result);
 
-          const question = result[0];
-          resetAnswer(question);
+            const question = result[0];
+            resetAnswer(question);
+          }
         }
       } catch (error) {
         console.error(error);
@@ -212,7 +214,9 @@ const Quest = () => {
       resetAnswer(question);
     } else {
       setQuizComplete(true);
-      await addHistory(answerArray, user.token);
+      if (user.success) {
+        await addHistory(answerArray, user.token);
+      }
     }
   };
 

@@ -42,7 +42,7 @@ type TagResponse = {
 export const loginUserAPI = async (user: UserInfo): Promise<UserResponse> => {
   const response = await fetch(URL_BASE + "auth/login", {
     method: "POST",
-    body: JSON.stringify({ email: user.userName, password: user.password }),
+    body: JSON.stringify({ email: user.email, password: user.password }),
     headers: {
       "Content-Type": "application/json",
     },
@@ -54,14 +54,7 @@ export const loginUserAPI = async (user: UserInfo): Promise<UserResponse> => {
   return data;
 };
 
-export const addUserAPI = async (
-  newUser: UserInfo
-): Promise<UserResponse | undefined> => {
-  const userResponse: Response = await fetch(URL_USERS);
-  if (!userResponse.ok) {
-    throw Error("Could not add user");
-  }
-
+export const addUserAPI = async (newUser: UserInfo): Promise<UserResponse> => {
   const response = await fetch(URL_USERS, {
     method: "POST",
     body: JSON.stringify(newUser),
@@ -70,11 +63,18 @@ export const addUserAPI = async (
     },
   });
   if (!response.ok) {
-    throw Error("Could not add user");
+    const error = await response.json();
+    if (error && error.message) {
+      return { success: false, message: error.message };
+    }
+    return { success: false, message: "Could not create user" };
   }
-
   const addedUser = await response.json();
-  return addedUser;
+  return {
+    success: true,
+    userInfo: { email: addedUser.userInfo.email },
+    token: addedUser.token,
+  };
 };
 
 export const addQuestionAPI = async (
